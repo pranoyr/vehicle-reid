@@ -25,11 +25,12 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
 	# 	scheduler.step()
 
 	for epoch in range(start_epoch, n_epochs):
-		scheduler.step()
 
 		# Train stage
 		train_loss, metrics = train_epoch(
 			train_loader, model, loss_fn, optimizer, cuda, log_interval, metrics)
+
+		scheduler.step()
 
 		message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(
 			epoch + 1, n_epochs, train_loss)
@@ -186,7 +187,7 @@ n_epochs=10
 
 log_interval=10
 
-cuda=False
+cuda=True
 
 fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics = [],
 		start_epoch = 0)

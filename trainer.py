@@ -7,10 +7,11 @@ from metrics import AccumulatedAccuracyMetric
 from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
 import torch.optim as optim
+import os
 
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
-		start_epoch=0):
+		start_epoch=1, save_interval=5):
 	"""
 	Loaders, model, loss function and metrics should work together for a given task,
 	i.e. The model should be able to process data output of loaders,
@@ -20,8 +21,8 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
 	Siamese network: Siamese loader, siamese model, contrastive loss
 	Online triplet learning: batch loader, embedding model, online triplet loss
 	"""
-	for epoch in range(0, start_epoch):
-		scheduler.step()
+	# for epoch in range(0, start_epoch):
+	# 	scheduler.step()
 
 	for epoch in range(start_epoch, n_epochs):
 		scheduler.step()
@@ -44,6 +45,13 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
 			message += '\t{}: {}'.format(metric.name(), metric.value())
 
 		print(message)
+
+
+		if epoch % save_interval == 0:
+			state = {'epoch': epoch + 1, 'model_state_dict': model.state_dict(),
+					'optimizer_state_dict': optimizer.state_dict()}
+			torch.save(state, os.path.join('snapshots', f'model{epoch}.pth'))
+			print("Epoch {} model saved!\n".format(epoch))
 
 
 def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, metrics):

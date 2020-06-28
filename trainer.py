@@ -175,7 +175,7 @@ val_loader=torch.utils.data.DataLoader(validation_data,
 
 
 embedding_net=EmbeddingNet()
-model=TripletNet(embedding_net)
+model=TripletNet(embedding_net).to('cuda')
 loss_fn=TripletLoss(0.5)
 
 

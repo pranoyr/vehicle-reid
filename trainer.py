@@ -154,8 +154,8 @@ transform = transforms.Compose([
 					0.229, 0.224, 0.225])
 					   ])
 
-training_data = TripletVeriDataset(root_dir='/Users/pranoyr/Downloads/Veri/image_train', xml_path='/Users/pranoyr/Downloads/Veri/train_label.xml', transform=transform)
-validation_data = TripletVeriDataset(root_dir='/Users/pranoyr/Downloads/Veri/image_test', xml_path='/Users/pranoyr/Downloads/Veri/test_label.xml', transform=transform)
+training_data = TripletVeriDataset(root_dir='/home/neuroplex/Downloads/Veri/image_train', xml_path='/Users/pranoyr/Downloads/Veri/train_label.xml', transform=transform)
+validation_data = TripletVeriDataset(root_dir='/home/neuroplex/Downloads/Veri/image_test', xml_path='/Users/pranoyr/Downloads/Veri/test_label.xml', transform=transform)
 
 
 train_loader=torch.utils.data.DataLoader(training_data,

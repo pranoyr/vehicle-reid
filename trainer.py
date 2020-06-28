@@ -11,7 +11,7 @@ import os
 
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
-		start_epoch=1, save_interval=5):
+		start_epoch=1, save_interval=2):
 	"""
 	Loaders, model, loss function and metrics should work together for a given task,
 	i.e. The model should be able to process data output of loaders,
@@ -190,4 +190,4 @@ log_interval=10
 cuda=True
 
 fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics = [],
-		start_epoch = 0)
+		start_epoch = 1)

@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from losses import TripletLoss
 from datasets import TripletMNIST, TripletVeriDataset
-from networks import TripletNet, EmbeddingNet
+from networks import TripletNet, EmbeddingNet, Resnet18
 from metrics import AccumulatedAccuracyMetric
 from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
@@ -174,7 +174,7 @@ val_loader=torch.utils.data.DataLoader(validation_data,
 		batch_size = 32, shuffle = True, **kwargs)
 
 
-embedding_net=EmbeddingNet()
+embedding_net=Resnet18()
 model=TripletNet(embedding_net).to('cuda')
 loss_fn=TripletLoss(0.5)
 

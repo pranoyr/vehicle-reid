@@ -8,10 +8,10 @@ from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
 import torch.optim as optim
 import os
+from opts import parse_opts
 
 
-def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
-		start_epoch=1, save_interval=2):
+def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, opt, metrics=[]):
 	"""
 	Loaders, model, loss function and metrics should work together for a given task,
 	i.e. The model should be able to process data output of loaders,
@@ -24,23 +24,23 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
 	# for epoch in range(0, start_epoch):
 	# 	scheduler.step()
 
-	for epoch in range(start_epoch, n_epochs):
+	for epoch in range(opt.start_epoch, opt.n_epochs + 1):
 
 		# Train stage
 		train_loss, metrics = train_epoch(
-			train_loader, model, loss_fn, optimizer, cuda, log_interval, metrics)
+			train_loader, model, loss_fn, optimizer, device, opt, metrics)
 
 		scheduler.step()
 
 		message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(
-			epoch + 1, n_epochs, train_loss)
+			epoch, opt.n_epochs, train_loss)
 		for metric in metrics:
 			message += '\t{}: {}'.format(metric.name(), metric.value())
 
-		val_loss, metrics = test_epoch(val_loader, model, loss_fn, cuda, metrics)
+		val_loss, metrics = test_epoch(val_loader, model, loss_fn, device, opt, metrics)
 		val_loss /= len(val_loader)
 
-		message += '\nEpoch: {}/{}. Validation set: Average loss: {:.4f}'.format(epoch + 1, n_epochs,
+		message += '\nEpoch: {}/{}. Validation set: Average loss: {:.4f}'.format(epoch, opt.n_epochs,
 																				 val_loss)
 		for metric in metrics:
 			message += '\t{}: {}'.format(metric.name(), metric.value())
@@ -48,14 +48,14 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
 		print(message)
 
 
-		if epoch % save_interval == 0:
+		if epoch % opt.save_interval == 0:
 			state = {'epoch': epoch + 1, 'model_state_dict': model.state_dict(),
 					'optimizer_state_dict': optimizer.state_dict()}
 			torch.save(state, os.path.join('snapshots', f'model{epoch}.pth'))
 			print("Epoch {} model saved!\n".format(epoch))
 
 
-def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, metrics):
+def train_epoch(train_loader, model, loss_fn, optimizer, device, opt, metrics):
 	for metric in metrics:
 		metric.reset()
 
@@ -67,10 +67,10 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
 		target = target if len(target) > 0 else None
 		if not type(data) in (tuple, list):
 			data = (data,)
-		if cuda:
-			data = tuple(d.to('cuda:1') for d in data)
+		if opt.use_cuda:
+			data = tuple(d.to(device) for d in data)
 			if target is not None:
-				target = target.to('cuda:1')
+				target = target.to(device)
 
 		optimizer.zero_grad()
 		outputs = model(*data)
@@ -108,7 +108,7 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
 	return total_loss, metrics
 
 
-def test_epoch(val_loader, model, loss_fn, cuda, metrics):
+def test_epoch(val_loader, model, loss_fn, device, opt, metrics):
 	with torch.no_grad():
 		for metric in metrics:
 			metric.reset()
@@ -118,10 +118,10 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics):
 			target = target if len(target) > 0 else None
 			if not type(data) in (tuple, list):
 				data = (data,)
-			if cuda:
-				data = tuple(d.to('cuda:1') for d in data)
+			if opt.use_cuda:
+				data = tuple(d.to(device) for d in data)
 				if target is not None:
-					target = target.to('cuda:1')
+					target = target.to(device)
 
 			outputs = model(*data)
 
@@ -142,9 +142,13 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics):
 
 	return val_loss, metrics
 
+opt = parse_opts()
 
-use_cuda = torch.cuda.is_available()
-kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
+# CUDA for PyTorch
+
+device = torch.device(f"cuda:{opt.gpu}" if opt.cuda else "cpu")
+# use_cuda = torch.cuda.is_available()
+# kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
 
 # training_data = datasets.MNIST('./data', train=True, download=True,
 # 					   transform=transforms.Compose([
@@ -163,31 +167,24 @@ transform = transforms.Compose([
 					0.229, 0.224, 0.225])
 					   ])
 
-training_data = TripletVeriDataset(root_dir='/home/neuroplex/Downloads/VeRi/image_train', xml_path='/home/neuroplex/Downloads/VeRi/train_label.xml', transform=transform)
-validation_data = TripletVeriDataset(root_dir='/home/neuroplex/Downloads/VeRi/image_test', xml_path='/home/neuroplex/Downloads/VeRi/test_label.xml', transform=transform)
+training_data = TripletVeriDataset(root_dir=opt.train_images, xml_path=opt.train_label, transform=transform)
+validation_data = TripletVeriDataset(root_dir=opt.test_images, xml_path=opt.test_label, transform=transform)
 
 
 train_loader=torch.utils.data.DataLoader(training_data,
-		batch_size = 32, shuffle = True, **kwargs)
+		batch_size = opt.batch_size, shuffle = True, num_workers=opt.num_workers)
 
 val_loader=torch.utils.data.DataLoader(validation_data,
-		batch_size = 32, shuffle = True, **kwargs)
+		batch_size = opt.batch_size, shuffle = True, num_workers=opt.num_workers)
 
 
 embedding_net=Resnet18()
-model=TripletNet(embedding_net).to('cuda:1')
+model=TripletNet(embedding_net).to(device)
 loss_fn=TripletLoss(0.5)
-
 
 optimizer=optim.Adadelta(model.parameters(), lr = 0.1)
 
 scheduler=StepLR(optimizer, step_size = 1, gamma = 0.1)
 
-n_epochs=10
 
-log_interval=10
-
-cuda=True
-
-fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics = [],
-		start_epoch = 1)
+fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, opt, metrics = [])

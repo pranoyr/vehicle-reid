@@ -68,9 +68,9 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
 		if not type(data) in (tuple, list):
 			data = (data,)
 		if cuda:
-			data = tuple(d.cuda() for d in data)
+			data = tuple(d.to('cuda:1') for d in data)
 			if target is not None:
-				target = target.cuda()
+				target = target.to('cuda:1')
 
 		optimizer.zero_grad()
 		outputs = model(*data)
@@ -119,9 +119,9 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics):
 			if not type(data) in (tuple, list):
 				data = (data,)
 			if cuda:
-				data = tuple(d.cuda() for d in data)
+				data = tuple(d.to('cuda:1') for d in data)
 				if target is not None:
-					target = target.cuda()
+					target = target.to('cuda:1')
 
 			outputs = model(*data)
 
@@ -175,7 +175,7 @@ val_loader=torch.utils.data.DataLoader(validation_data,
 
 
 embedding_net=Resnet18()
-model=TripletNet(embedding_net).to('cuda')
+model=TripletNet(embedding_net).to('cuda:1')
 loss_fn=TripletLoss(0.5)
 
 

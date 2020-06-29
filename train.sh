@@ -1,0 +1,1 @@
+python trainer.py --use_cuda --gpu 1

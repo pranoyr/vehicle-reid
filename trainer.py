@@ -146,7 +146,7 @@ opt = parse_opts()
 
 # CUDA for PyTorch
 
-device = torch.device(f"cuda:{opt.gpu}" if opt.cuda else "cpu")
+device = torch.device(f"cuda:{opt.gpu}" if opt.use_cuda else "cpu")
 # use_cuda = torch.cuda.is_available()
 # kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
 

@@ -38,6 +38,11 @@ def parse_opts():
 		type=int,
 		help='Log interval for showing training loss')
 	parser.add_argument(
+		'--save_interval',
+		default=2,
+		type=int,
+		help='Model saving interval)
+	parser.add_argument(
 		'--learning_rate',
 		default=0.1,
 		type=float,

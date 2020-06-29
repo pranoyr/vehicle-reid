@@ -33,6 +33,11 @@ def parse_opts():
 		type=int,
 		help='Height and width of inputs')
 	parser.add_argument(
+		'--log_interval',
+		default=10,
+		type=int,
+		help='Log interval for showing training loss')
+	parser.add_argument(
 		'--learning_rate',
 		default=0.1,
 		type=float,

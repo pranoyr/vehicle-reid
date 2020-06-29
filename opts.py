@@ -41,7 +41,7 @@ def parse_opts():
 		'--save_interval',
 		default=2,
 		type=int,
-		help='Model saving interval)
+		help='Model saving interval')
 	parser.add_argument(
 		'--learning_rate',
 		default=0.1,

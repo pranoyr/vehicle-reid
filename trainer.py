@@ -167,8 +167,8 @@ transform = transforms.Compose([
 					0.229, 0.224, 0.225])
 					   ])
 
-training_data = TripletVeriDataset(root_dir=opt.train_images, xml_path=opt.train_label, transform=transform)
-validation_data = TripletVeriDataset(root_dir=opt.test_images, xml_path=opt.test_label, transform=transform)
+training_data = TripletVeriDataset(root_dir=opt.train_images, xml_path=opt.train_annotation_path, transform=transform)
+validation_data = TripletVeriDataset(root_dir=opt.test_images, xml_path=opt.test_annotation_path, transform=transform)
 
 
 train_loader=torch.utils.data.DataLoader(training_data,

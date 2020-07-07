@@ -44,17 +44,32 @@ transform = transforms.Compose([
 checkpoint = torch.load('/Users/pranoyr/Desktop/model6.pth', map_location='cpu')
 model.load_state_dict(checkpoint['model_state_dict'])
 
-img1 = cv2.imread('/Users/pranoyr/Downloads/VeRi/image_query/0219_c015_00027760_0.jpg')
+# img1 = cv2.imread('/Users/pranoyr/Downloads/VeRi/image_query/0219_c015_00027760_0.jpg')
+# img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
+# img1 = Image.fromarray(img1)
+
+# img2 = cv2.imread('/Users/pranoyr/Downloads/VeRi/image_query/0219_c017_00027085_0.jpg')
+# img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
+# img2 = Image.fromarray(img2)
+
+# img3 = cv2.imread('/Users/pranoyr/Downloads/VeRi/image_query/0218_c004_00043495_0.jpg')
+# img3 = cv2.cvtColor(img3,cv2.COLOR_BGR2RGB)
+# img3 = Image.fromarray(img3)
+
+
+
+img1 = cv2.imread('/Users/pranoyr/Desktop/cars/entry.png')
 img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
 img1 = Image.fromarray(img1)
 
-img2 = cv2.imread('/Users/pranoyr/Downloads/VeRi/image_query/0219_c017_00027085_0.jpg')
+img2 = cv2.imread('/Users/pranoyr/Desktop/cars/exit.png')
 img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
 img2 = Image.fromarray(img2)
 
-img3 = cv2.imread('/Users/pranoyr/Downloads/VeRi/image_query/0218_c004_00043495_0.jpg')
+img3 = cv2.imread('/Users/pranoyr/Desktop/cars/exit1.png')
 img3 = cv2.cvtColor(img3,cv2.COLOR_BGR2RGB)
 img3 = Image.fromarray(img3)
+
 
 img1 = transform(img1)
 img2 = transform(img2)

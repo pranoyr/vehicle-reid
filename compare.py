@@ -12,6 +12,7 @@ import torch.optim as optim
 import os
 import torch
 import numpy as np
+from opts import parse_opts
 
 
 class TripletNet(nn.Module):
@@ -23,15 +24,14 @@ class TripletNet(nn.Module):
         output1 = self.embedding_net(x1)
         return output1
 
-    # def get_embedding(self, x):
-    #     return self.embedding_net(x)
 
+opt = parse_opts()
+device = torch.device(f"cuda:{opt.gpu}" if opt.use_cuda else "cpu")
 
 embedding_net=Resnet18()
 model=TripletNet(embedding_net)
+model=model.to(device)
 model.eval()
-# model=embedding_net.to('cuda')
-
 
 transform = transforms.Compose([
 						   transforms.Resize((150,150)),
@@ -40,36 +40,21 @@ transform = transforms.Compose([
 					        0.229, 0.224, 0.225])
 					   ])
 
-
 checkpoint = torch.load('/Users/pranoyr/Desktop/model6.pth', map_location='cpu')
 model.load_state_dict(checkpoint['model_state_dict'])
 
-# img1 = cv2.imread('/Users/pranoyr/Downloads/VeRi/image_query/0219_c015_00027760_0.jpg')
-# img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
-# img1 = Image.fromarray(img1)
 
-# img2 = cv2.imread('/Users/pranoyr/Downloads/VeRi/image_query/0219_c017_00027085_0.jpg')
-# img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
-# img2 = Image.fromarray(img2)
-
-# img3 = cv2.imread('/Users/pranoyr/Downloads/VeRi/image_query/0218_c004_00043495_0.jpg')
-# img3 = cv2.cvtColor(img3,cv2.COLOR_BGR2RGB)
-# img3 = Image.fromarray(img3)
-
-
-
-img1 = cv2.imread('/Users/pranoyr/Desktop/cars/entry.png')
+img1 = cv2.imread('./images/anchor.jpg')
 img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
 img1 = Image.fromarray(img1)
 
-img2 = cv2.imread('/Users/pranoyr/Desktop/cars/exit.png')
+img2 = cv2.imread('./images/positive.jpg')
 img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
 img2 = Image.fromarray(img2)
 
-img3 = cv2.imread('/Users/pranoyr/Desktop/cars/exit1.png')
+img3 = cv2.imread('./images/negative.jpg')
 img3 = cv2.cvtColor(img3,cv2.COLOR_BGR2RGB)
 img3 = Image.fromarray(img3)
-
 
 img1 = transform(img1)
 img2 = transform(img2)
@@ -80,13 +65,11 @@ with torch.no_grad():
     positive = model(img2.unsqueeze(0))
     negative = model(img3.unsqueeze(0))
 
-print("positive")
 distance_positive = (anchor - positive).pow(2).sum(1)
-print(distance_positive)
+print(f'positive distance : {distance_positive}')
 
-print("negative")
-distance_positive = (anchor - negative).pow(2).sum(1)
-print(distance_positive)
+distance_negative = (anchor - negative).pow(2).sum(1)
+print(f'negative distance : {distance_negative}')
 
 
 

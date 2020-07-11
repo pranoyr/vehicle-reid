@@ -188,7 +188,7 @@ if opt.resume_path:
     print('loading checkpoint {}'.format(opt.resume_path))
 checkpoint = torch.load(opt.resume_path)
 opt.start_epoch = checkpoint['epoch']
-model.load_state_dict(checkpoint['state_dict'])
-optimizer.load_state_dict(checkpoint['optimizer'])
+model.load_state_dict(checkpoint['model_state_dict'])
+optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
 fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, opt, metrics = [])

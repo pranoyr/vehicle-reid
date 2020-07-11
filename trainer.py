@@ -23,9 +23,7 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, 
 	"""
 	# for epoch in range(0, start_epoch):
 	# 	scheduler.step()
-
 	for epoch in range(opt.start_epoch, opt.n_epochs + 1):
-
 		# Train stage
 		train_loss, metrics = train_epoch(
 			train_loader, model, loss_fn, optimizer, device, opt, metrics)
@@ -186,5 +184,11 @@ optimizer=optim.Adadelta(model.parameters(), lr = opt.learning_rate)
 
 scheduler=StepLR(optimizer, step_size = 1, gamma = 0.1)
 
+if opt.resume_path:
+    print('loading checkpoint {}'.format(opt.resume_path))
+checkpoint = torch.load(opt.resume_path)
+opt.start_epoch = checkpoint['epoch']
+model.load_state_dict(checkpoint['state_dict'])
+optimizer.load_state_dict(checkpoint['optimizer'])
 
 fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, opt, metrics = [])

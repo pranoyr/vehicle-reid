@@ -95,7 +95,7 @@ def parse_opts():
 		'--resume_path',
 		default='',
 		type=str,
-		help='Save data (.pth) of previous training')
+		help='Resume training')
 	parser.add_argument(
 		'--pretrain_path', default='', type=str, help='Pretrained model (.pth)')
 	parser.add_argument(

@@ -52,7 +52,7 @@ img2 = cv2.imread('./images/exit.png')
 img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
 img2 = Image.fromarray(img2)
 
-img3 = cv2.imread('./images/negative.jpg')
+img3 = cv2.imread('./images/3.jpg')
 img3 = cv2.cvtColor(img3,cv2.COLOR_BGR2RGB)
 img3 = Image.fromarray(img3)
 

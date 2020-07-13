@@ -184,12 +184,11 @@ optimizer=optim.Adadelta(model.parameters(), lr = opt.learning_rate, weight_deca
 
 scheduler=StepLR(optimizer, step_size = 1, gamma = 0.1)
 
-print(opt.resume_path)
 if opt.resume_path:
-    print('loading checkpoint {}'.format(opt.resume_path))
-checkpoint = torch.load(opt.resume_path)
-opt.start_epoch = checkpoint['epoch']
-model.load_state_dict(checkpoint['model_state_dict'])
-optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+	print('loading checkpoint {}'.format(opt.resume_path))
+	checkpoint = torch.load(opt.resume_path)
+	opt.start_epoch = checkpoint['epoch']
+	model.load_state_dict(checkpoint['model_state_dict'])
+	optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
 fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, opt, metrics = [])

@@ -93,7 +93,6 @@ def parse_opts():
 	)
 	parser.add_argument(
 		'--resume_path',
-		default='',
 		type=str,
 		help='Resume training')
 	parser.add_argument(

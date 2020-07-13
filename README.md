@@ -1,4 +1,4 @@
-# Vehicle Re-id Using Triplet Networks
+# Vehicle Re Identification Using Triplet Networks
 The objective is to train a Triplet Network for Vehicle Re-Identification using VeRi Dataset
 
 ## Getting Started

@@ -25,5 +25,5 @@ https://drive.google.com/file/d/12CX-4W5doq6ZE87e3IrDOUv_iIVHaNyX/view?usp=shari
 python compare.py
 ```
 
-## License
-This project is licensed under the MIT License 
+## References
+https://github.com/adambielski/siamese-triplet

@@ -172,7 +172,7 @@ device = torch.device(f"cuda:{opt.gpu}" if opt.use_cuda else "cpu")
 # 						transforms.Normalize((0.1307,), (0.3081,))
 # 					]))
 
-transform = transforms.Compose([
+train_transform = transforms.Compose([
 						   transforms.Resize((224,224)),
 						   transforms.RandomRotation([-45,45]),
 						   transforms.ToTensor(),
@@ -180,8 +180,15 @@ transform = transforms.Compose([
 					0.229, 0.224, 0.225])
 					   ])
 
-training_data = TripletVeriDataset(root_dir=opt.train_images, xml_path=opt.train_annotation_path, transform=transform)
-validation_data = TripletVeriDataset(root_dir=opt.test_images, xml_path=opt.test_annotation_path, transform=transform)
+test_transform = transforms.Compose([
+						   transforms.Resize((224,224)),
+						   transforms.ToTensor(),
+						   transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
+					0.229, 0.224, 0.225])
+					   ])
+
+training_data = TripletVeriDataset(root_dir=opt.train_images, xml_path=opt.train_annotation_path, transform=train_transform)
+validation_data = TripletVeriDataset(root_dir=opt.test_images, xml_path=opt.test_annotation_path, transform=test_transform)
 
 
 train_loader=torch.utils.data.DataLoader(training_data,

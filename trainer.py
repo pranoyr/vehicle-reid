@@ -9,6 +9,7 @@ from torchvision import datasets, transforms
 import torch.optim as optim
 import os
 from opts import parse_opts
+import tensorboardX
 
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, opt, metrics=[]):
@@ -23,6 +24,9 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, 
 	"""
 	# for epoch in range(0, start_epoch):
 	# 	scheduler.step()
+	# tensorboard
+	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
+
 	for epoch in range(opt.start_epoch, opt.n_epochs + 1):
 		# Train stage
 		train_loss, metrics = train_epoch(
@@ -51,6 +55,16 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, 
 					'optimizer_state_dict': optimizer.state_dict()}
 			torch.save(state, os.path.join('snapshots', f'model{epoch}.pth'))
 			print("Epoch {} model saved!\n".format(epoch))
+
+			# write summary
+			summary_writer.add_scalar(
+				'losses/train_loss', train_loss, global_step=epoch)
+			summary_writer.add_scalar(
+				'losses/val_loss', val_loss, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'acc/train_acc', train_acc * 100, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'acc/val_acc', val_acc * 100, global_step=epoch)
 
 
 def train_epoch(train_loader, model, loss_fn, optimizer, device, opt, metrics):

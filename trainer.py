@@ -195,7 +195,7 @@ embedding_net=Resnet18()
 model=TripletNet(embedding_net).to(device)
 loss_fn=TripletLoss(0.5)
 
-optimizer=optim.Adadelta(model.parameters(), lr = opt.learning_rate, weight_decay=1e-4)
+optimizer=optim.Adadelta(model.parameters(), lr = opt.learning_rate, weight_decay=1e-3)
 
 scheduler=StepLR(optimizer, step_size = 1, gamma = 0.1)
 

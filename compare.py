@@ -44,11 +44,11 @@ checkpoint = torch.load('/Users/pranoyr/Downloads/car_compare4.pth', map_locatio
 model.load_state_dict(checkpoint['model_state_dict'])
 
 
-img1 = cv2.imread('./images/entry.png')
+img1 = cv2.imread('./images/red1.png')
 img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
 img1 = Image.fromarray(img1)
 
-img2 = cv2.imread('./images/exit.png')
+img2 = cv2.imread('./images/red2.png')
 img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
 img2 = Image.fromarray(img2)
 

@@ -32,7 +32,7 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, 
 		train_loss, metrics = train_epoch(
 			train_loader, model, loss_fn, optimizer, device, opt, metrics)
 
-		scheduler.step()
+		# scheduler.step()
 
 		message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(
 			epoch, opt.n_epochs, train_loss)

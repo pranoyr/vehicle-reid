@@ -32,7 +32,7 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, 
         train_loss, metrics = train_epoch(
             train_loader, model, loss_fn, optimizer, device, opt, metrics)
 
-        # scheduler.step()
+        scheduler.step()
 
         message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(
             epoch, opt.n_epochs, train_loss)
@@ -206,8 +206,8 @@ embedding_net=Resnet18()
 model = TripletNet(embedding_net).to(device)
 loss_fn = TripletLoss(0.5)
 
-# optimizer=optim.Adadelta(model.parameters(), lr = opt.learning_rate, weight_decay=1e-3)
-optimizer = optim.Adam(model.parameters(), lr=1e-5)
+optimizer=optim.Adadelta(model.parameters(), lr = opt.learning_rate, weight_decay=1e-3)
+# optimizer = optim.Adam(model.parameters(), lr=1e-5)
 scheduler = StepLR(optimizer, step_size=1, gamma=0.1)
 
 if opt.resume_path:

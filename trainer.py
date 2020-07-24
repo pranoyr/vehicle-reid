@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from losses import TripletLoss
 from datasets import TripletMNIST, TripletVeriDataset
-from networks import TripletNet, EmbeddingNet, Resnet18
+from networks import TripletNet, EmbeddingNet, Resnet18, MobileNetv2
 from metrics import AccumulatedAccuracyMetric
 from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
@@ -198,7 +198,8 @@ val_loader=torch.utils.data.DataLoader(validation_data,
 		batch_size = opt.batch_size, shuffle = True, num_workers=opt.num_workers)
 
 
-embedding_net=Resnet18()
+# embedding_net=Resnet18()
+embedding_net = MobileNetv2()
 model=TripletNet(embedding_net).to(device)
 loss_fn=TripletLoss(0.5)
 

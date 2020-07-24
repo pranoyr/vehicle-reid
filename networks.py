@@ -12,6 +12,9 @@ class Resnet18(nn.Module):
         nn.Dropout(0.5),
         nn.Linear(512, 128))
 
+        # for param in model.parameters():
+        #     param.requires_grad = False
+
     def forward(self, x):
         x = self.layer(x)
         return x

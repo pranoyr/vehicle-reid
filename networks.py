@@ -23,13 +23,12 @@ class MobileNetv2(nn.Module):
         # building classifier
         self.layer2 = nn.Sequential(
             nn.Dropout(0.2),
-            nn.Linear(1000, 128),
+            nn.Linear(62720, 128),
         )
 
     def forward(self, x):
         x = self.layer1(x)
         x = x.view(x.size(0), -1)
-        print(x.shape)
         output = self.layer2(x)
         return output
 

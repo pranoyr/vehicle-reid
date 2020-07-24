@@ -1,11 +1,23 @@
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models import resnet18
+from torchvision.models import mobilenet_v2
+
 
 class Resnet18(nn.Module):
     def __init__(self):
         super(Resnet18, self).__init__()
         self.layer = resnet18(num_classes=128)
+
+    def forward(self, x):
+        output = self.layer(x)
+        return output
+
+
+class MobileNetv2(nn.Module):
+    def __init__(self):
+        super(MobileNetv2, self).__init__()
+        self.layer = mobilenet_v2(pretrained = True, num_classes=128)
 
     def forward(self, x):
         output = self.layer(x)

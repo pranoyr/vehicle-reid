@@ -204,7 +204,6 @@ loss_fn=TripletLoss(0.5)
 
 # optimizer=optim.Adadelta(model.parameters(), lr = opt.learning_rate, weight_decay=1e-3)
 optimizer=optim.Adam(model.parameters())
-
 scheduler=StepLR(optimizer, step_size = 1, gamma = 0.1)
 
 if opt.resume_path:

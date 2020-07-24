@@ -7,7 +7,7 @@ from torchvision.models import mobilenet_v2
 class Resnet18(nn.Module):
     def __init__(self):
         super(Resnet18, self).__init__()
-        self.layer = resnet18(pretrained = True)
+        self.layer = resnet18(pretrained=False)
         self.layer.fc = nn.Sequential(
         nn.Dropout(0.5),
         nn.Linear(512, 128))

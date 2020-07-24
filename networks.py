@@ -10,7 +10,7 @@ class Resnet18(nn.Module):
         self.layer = resnet18(pretrained = True)
         self.layer.fc = nn.Sequential(
         nn.Dropout(0.5),
-        nn.Linear(10, 128))
+        nn.Linear(512, 128))
 
     def forward(self, x):
         x = self.layer(x)

@@ -17,10 +17,20 @@ class Resnet18(nn.Module):
 class MobileNetv2(nn.Module):
     def __init__(self):
         super(MobileNetv2, self).__init__()
-        self.layer = mobilenet_v2(pretrained = True, num_classes=128)
+        model = mobilenet_v2(pretrained = True)
+        self.layer1 = model.features
+
+        # building classifier
+        self.layer2 = nn.Sequential(
+            nn.Dropout(0.2),
+            nn.Linear(1000, 128),
+        )
 
     def forward(self, x):
-        output = self.layer(x)
+        x = self.layer1(x)
+        x = x.view(x.size(0), -1)
+        print(x.shape)
+        output = self.layer2(x)
         return output
 
 

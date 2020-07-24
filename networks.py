@@ -8,7 +8,7 @@ class Resnet18(nn.Module):
     def __init__(self):
         super(Resnet18, self).__init__()
         # self.layer = resnet18(pretrained=False, num_classes=128)
-        self.layer = resnet18(pretrained=False)
+        self.layer = resnet18(pretrained=True)
         self.layer.fc = nn.Sequential(
         nn.Linear(512, 128))
 

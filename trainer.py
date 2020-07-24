@@ -7,6 +7,7 @@ from metrics import AccumulatedAccuracyMetric
 from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
 import torch.optim as optim
+import torch.nn as nn
 import os
 from opts import parse_opts
 import tensorboardX
@@ -209,7 +210,8 @@ val_loader = torch.utils.data.DataLoader(validation_data,
 embedding_net=Resnet18()
 # embedding_net = MobileNetv2()
 model = TripletNet(embedding_net).to(device)
-loss_fn = TripletLoss(0.5)
+loss_fn = nn.TripletMarginLoss(margin=0.5)
+# loss_fn = TripletLoss(0.5)
 
 optimizer=optim.Adadelta(model.parameters(), lr = opt.learning_rate, weight_decay=1e-3)
 # optimizer = optim.Adam(model.parameters(), lr=1e-5)

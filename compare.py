@@ -40,19 +40,19 @@ transform = transforms.Compose([
 					        0.229, 0.224, 0.225])
 					   ])
 
-checkpoint = torch.load('/Users/pranoyr/Downloads/model4.pth', map_location='cpu')
+checkpoint = torch.load('/Users/pranoyr/Downloads/model2.pth', map_location='cpu')
 model.load_state_dict(checkpoint['model_state_dict'])
 
 
-img1 = cv2.imread('./images/entry.png')
+img1 = cv2.imread('./images/anchor.jpg')
 img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
 img1 = Image.fromarray(img1)
 
-img2 = cv2.imread('./images/exit.png')
+img2 = cv2.imread('./images/positive.jpg')
 img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
 img2 = Image.fromarray(img2)
 
-img3 = cv2.imread('./images/white1.png')
+img3 = cv2.imread('./images/red1.png')
 img3 = cv2.cvtColor(img3,cv2.COLOR_BGR2RGB)
 img3 = Image.fromarray(img3)
 

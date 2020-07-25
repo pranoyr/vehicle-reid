@@ -1,16 +1,17 @@
 import torch
 import numpy as np
+import torch.optim as optim
+import torch.nn as nn
+import os
+import tensorboardX
+
 from losses import TripletLoss
 from datasets import TripletMNIST, TripletVeriDataset
 from networks import TripletNet, EmbeddingNet, Resnet18, MobileNetv2
 from metrics import AccumulatedAccuracyMetric
 from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
-import torch.optim as optim
-import torch.nn as nn
-import os
 from opts import parse_opts
-import tensorboardX
 
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, opt, metrics=[]):

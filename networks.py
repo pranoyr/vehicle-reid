@@ -28,7 +28,6 @@ class MobileNetv2(nn.Module):
 
         # building classifier
         self.layer2 = nn.Sequential(
-            nn.Dropout(0.2),
             nn.Linear(62720, 128),
         )
 

@@ -12,11 +12,6 @@ import os
 from opts import parse_opts
 import tensorboardX
 
-torch.manual_seed(0)
-np.random.seed(0)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, opt, metrics=[]):
     """
@@ -161,68 +156,73 @@ def test_epoch(val_loader, model, loss_fn, device, opt, metrics):
     return val_loss, metrics
 
 
-opt = parse_opts()
+if (__name__ == '__main__'):
+    torch.manual_seed(0)
+    np.random.seed(0)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
-# CUDA for PyTorch
+    opt = parse_opts()
 
-device = torch.device(f"cuda:{opt.gpu}" if opt.use_cuda else "cpu")
-# use_cuda = torch.cuda.is_available()
-# kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
+    # CUDA for PyTorch
 
-# training_data = datasets.MNIST('./data', train=True, download=True,
-# 					   transform=transforms.Compose([
-# 						   transforms.ToTensor(),
-# 						   transforms.Normalize((0.1307,), (0.3081,))
-# 					   ]))
-# validation_data =  datasets.MNIST('./data', train=False, transform=transforms.Compose([
-# 						transforms.ToTensor(),
-# 						transforms.Normalize((0.1307,), (0.3081,))
-# 					]))
+    device = torch.device(f"cuda:{opt.gpu}" if opt.use_cuda else "cpu")
+    # use_cuda = torch.cuda.is_available()
+    # kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
 
-train_transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    #    transforms.RandomRotation([-45,45]),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
-        0.229, 0.224, 0.225])
-])
+    # training_data = datasets.MNIST('./data', train=True, download=True,
+    # 					   transform=transforms.Compose([
+    # 						   transforms.ToTensor(),
+    # 						   transforms.Normalize((0.1307,), (0.3081,))
+    # 					   ]))
+    # validation_data =  datasets.MNIST('./data', train=False, transform=transforms.Compose([
+    # 						transforms.ToTensor(),
+    # 						transforms.Normalize((0.1307,), (0.3081,))
+    # 					]))
 
-test_transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
-        0.229, 0.224, 0.225])
-])
+    train_transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        #    transforms.RandomRotation([-45,45]),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
+            0.229, 0.224, 0.225])
+    ])
 
-training_data = TripletVeriDataset(
-    root_dir=opt.train_images, xml_path=opt.train_annotation_path, transform=train_transform)
-validation_data = TripletVeriDataset(
-    root_dir=opt.test_images, xml_path=opt.test_annotation_path, transform=test_transform)
+    test_transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
+            0.229, 0.224, 0.225])
+    ])
 
+    training_data = TripletVeriDataset(
+        root_dir=opt.train_images, xml_path=opt.train_annotation_path, transform=train_transform)
+    validation_data = TripletVeriDataset(
+        root_dir=opt.test_images, xml_path=opt.test_annotation_path, transform=test_transform)
 
-train_loader = torch.utils.data.DataLoader(training_data,
-                                           batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers)
+    train_loader = torch.utils.data.DataLoader(training_data,
+                                               batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers)
 
-val_loader = torch.utils.data.DataLoader(validation_data,
-                                         batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers)
+    val_loader = torch.utils.data.DataLoader(validation_data,
+                                             batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers)
 
+    embedding_net = Resnet18()
+    # embedding_net = MobileNetv2()
+    model = TripletNet(embedding_net).to(device)
+    loss_fn = nn.TripletMarginLoss(margin=0.5)
+    # loss_fn = TripletLoss(0.5)
 
-embedding_net=Resnet18()
-# embedding_net = MobileNetv2()
-model = TripletNet(embedding_net).to(device)
-loss_fn = nn.TripletMarginLoss(margin=0.5)
-# loss_fn = TripletLoss(0.5)
+    optimizer = optim.Adadelta(
+        model.parameters(), lr=opt.learning_rate, weight_decay=1e-3)
+    # optimizer = optim.Adam(model.parameters(), lr=1e-5)
+    scheduler = StepLR(optimizer, step_size=1, gamma=0.1)
 
-optimizer=optim.Adadelta(model.parameters(), lr = opt.learning_rate, weight_decay=1e-3)
-# optimizer = optim.Adam(model.parameters(), lr=1e-5)
-scheduler = StepLR(optimizer, step_size=1, gamma=0.1)
+    if opt.resume_path:
+        print('loading checkpoint {}'.format(opt.resume_path))
+        checkpoint = torch.load(opt.resume_path)
+        opt.start_epoch = checkpoint['epoch']
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
-if opt.resume_path:
-    print('loading checkpoint {}'.format(opt.resume_path))
-    checkpoint = torch.load(opt.resume_path)
-    opt.start_epoch = checkpoint['epoch']
-    model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-
-fit(train_loader, val_loader, model, loss_fn,
-    optimizer, scheduler, device, opt, metrics=[])
+    fit(train_loader, val_loader, model, loss_fn,
+        optimizer, scheduler, device, opt, metrics=[])

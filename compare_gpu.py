@@ -49,11 +49,11 @@ checkpoint = torch.load('./snapshots/model2.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
 
 
-img1 = cv2.imread('./images/b1.png')
+img1 = cv2.imread('./images/swi.png')
 img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
 img1 = Image.fromarray(img1)
 
-img2 = cv2.imread('./images/b2.png')
+img2 = cv2.imread('./images/wag.png')
 img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
 img2 = Image.fromarray(img2)
 

@@ -15,6 +15,10 @@ import numpy as np
 from opts import parse_opts
 
 
+# torch.backends.cudnn.deterministic = True
+# torch.backends.cudnn.benchmark = False
+
+
 class TripletNet(nn.Module):
     def __init__(self, embedding_net):
         super(TripletNet, self).__init__()
@@ -73,10 +77,3 @@ print(f'positive distance : {distance_positive}')
 distance_negative = torch.norm(anchor - negative, 2, dim=1)
 #distance_negative = (anchor - negative).pow(2).sum(1)
 print(f'negative distance : {distance_negative}')
-
-
-
-
-
-
-

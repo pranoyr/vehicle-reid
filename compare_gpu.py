@@ -32,8 +32,8 @@ class TripletNet(nn.Module):
 opt = parse_opts()
 device = torch.device(f"cuda:{opt.gpu}" if opt.use_cuda else "cpu")
 
-# embedding_net=Resnet18()
-embedding_net=MobileNetv2()
+embedding_net=Resnet18()
+# embedding_net=MobileNetv2()
 model=TripletNet(embedding_net)
 model=model.to(device)
 model.eval()

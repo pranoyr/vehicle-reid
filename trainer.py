@@ -214,7 +214,7 @@ if (__name__ == '__main__'):
     # loss_fn = TripletLoss(0.5)
 
     optimizer = optim.Adadelta(
-        model.parameters(), lr=opt.learning_rate, weight_decay=1e-3)
+        model.parameters(), lr=opt.learning_rate, weight_decay=1e-2)
     # optimizer = optim.Adam(model.parameters(), lr=1e-5)
     scheduler = StepLR(optimizer, step_size=1, gamma=0.1)
 

@@ -45,15 +45,15 @@ transform = transforms.Compose([
 					        0.229, 0.224, 0.225])
 					   ])
 
-checkpoint = torch.load('/Users/pranoyr/Downloads/model4.pth', map_location='cpu')
+checkpoint = torch.load('/Users/pranoyr/Downloads/model2.pth', map_location='cpu')
 model.load_state_dict(checkpoint['model_state_dict'])
 
 
-img1 = cv2.imread('./images/swi.png')
+img1 = cv2.imread('./images/entry.png')
 img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
 img1 = Image.fromarray(img1)
 
-img2 = cv2.imread('./images/wag.png')
+img2 = cv2.imread('./images/exit.png')
 img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
 img2 = Image.fromarray(img2)
 
@@ -71,7 +71,6 @@ with torch.no_grad():
     negative = model(img3.unsqueeze(0))
 
 distance_positive = torch.norm(anchor - positive, 2, dim=1)
-print(anchor.shape)
 print(f'positive distance : {distance_positive}')
 
 distance_negative = torch.norm(anchor - negative, 2, dim=1)

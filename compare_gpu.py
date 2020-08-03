@@ -15,8 +15,8 @@ import numpy as np
 from opts import parse_opts
 
 
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
+# torch.backends.cudnn.deterministic = True
+# torch.backends.cudnn.benchmark = False
 
 
 class TripletNet(nn.Module):

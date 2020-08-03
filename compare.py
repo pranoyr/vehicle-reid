@@ -45,7 +45,7 @@ transform = transforms.Compose([
 					        0.229, 0.224, 0.225])
 					   ])
 
-checkpoint = torch.load('/Users/pranoyr/Downloads/model4.pth', map_location='cpu')
+checkpoint = torch.load('/Users/pranoyr/Downloads/model2.pth', map_location='cpu')
 model.load_state_dict(checkpoint['model_state_dict'])
 
 

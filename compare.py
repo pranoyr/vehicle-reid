@@ -1,6 +1,6 @@
 from losses import TripletLoss
 from datasets import TripletMNIST, TripletVeriDataset
-from networks import EmbeddingNet, Resnet18
+from networks import EmbeddingNet, Resnet18, MobileNetv2
 from metrics import AccumulatedAccuracyMetric
 from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
@@ -28,7 +28,8 @@ class TripletNet(nn.Module):
 opt = parse_opts()
 device = torch.device(f"cuda:{opt.gpu}" if opt.use_cuda else "cpu")
 
-embedding_net=Resnet18()
+# embedding_net=Resnet18()
+embedding_net=MobileNetv2()
 model=TripletNet(embedding_net)
 model=model.to(device)
 model.eval()
@@ -66,7 +67,7 @@ with torch.no_grad():
     negative = model(img3.unsqueeze(0))
 
 distance_positive = torch.norm(anchor - positive, 2, dim=1)
-# distance_positive = (anchor - positive).pow(2).sum(1)
+print(anchor.shape)
 print(f'positive distance : {distance_positive}')
 
 distance_negative = torch.norm(anchor - negative, 2, dim=1)

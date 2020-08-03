@@ -45,7 +45,7 @@ transform = transforms.Compose([
 					        0.229, 0.224, 0.225])
 					   ])
 
-checkpoint = torch.load('./snapshots/model2.pth')
+checkpoint = torch.load('./snapshots/model4.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
 
 

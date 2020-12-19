@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models import resnet18
+from resnet import resnet10
 from torchvision.models import mobilenet_v2
 import torch
 
@@ -9,7 +10,7 @@ class Resnet18(nn.Module):
     def __init__(self):
         super(Resnet18, self).__init__()
         # self.layer = resnet18(pretrained=False, num_classes=128)
-        resnet = resnet18(pretrained=True)
+        resnet = resnet10(pretrained=False)
         modules = list(resnet.children())[:-1]
         # self.layer.fc = nn.Sequential(nn.Linear(512, 512))
         self.backbone = nn.Sequential(*modules)

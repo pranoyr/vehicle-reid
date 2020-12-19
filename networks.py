@@ -2,28 +2,33 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models import resnet18
 from torchvision.models import mobilenet_v2
+import torch
 
 
 class Resnet18(nn.Module):
     def __init__(self):
         super(Resnet18, self).__init__()
         # self.layer = resnet18(pretrained=False, num_classes=128)
-        self.layer = resnet18(pretrained=True)
-        self.layer.fc = nn.Sequential(
-        nn.Linear(512, 128))
+        resnet = resnet18(pretrained=True)
+        modules = list(resnet.children())[:-1]
+        # self.layer.fc = nn.Sequential(nn.Linear(512, 512))
+        self.backbone = nn.Sequential(*modules)
+        # self.layer.fc = nn.Sequential(
+        # nn.Linear(512, 512))
 
         # for param in model.parameters():
         #     param.requires_grad = False
 
     def forward(self, x):
-        x = self.layer(x)
+        x = self.backbone(x)
+        x = x.view(x.shape[0], -1)
         return x
 
 
 class MobileNetv2(nn.Module):
     def __init__(self):
         super(MobileNetv2, self).__init__()
-        model = mobilenet_v2(pretrained = True)
+        model = mobilenet_v2(pretrained=True)
         self.layer1 = model.features
 
         # building classifier
@@ -121,3 +126,10 @@ class TripletNet(nn.Module):
 
     def get_embedding(self, x):
         return self.embedding_net(x)
+
+
+if (__name__ == "__main__"):
+    net = Resnet18()
+    x = torch.Tensor(1, 3, 64, 128)
+    x = net(x)
+    print(x.shape)

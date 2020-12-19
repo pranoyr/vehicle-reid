@@ -183,7 +183,7 @@ if (__name__ == '__main__'):
     # 					]))
 
     train_transform = transforms.Compose([
-        transforms.Resize((224, 224)),
+        transforms.Resize((64, 128)),
         #    transforms.RandomRotation([-45,45]),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[

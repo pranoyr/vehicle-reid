@@ -28,7 +28,7 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, 
     # 	scheduler.step()
     # tensorboard
     summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
-
+    th = 10000
     for epoch in range(opt.start_epoch, opt.n_epochs + 1):
         # Train stage
         train_loss, metrics = train_epoch(
@@ -53,21 +53,23 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, 
 
         print(message)
 
-        if epoch % opt.save_interval == 0:
+        # if epoch % opt.save_interval == 0:
+        if val_loss < th:
             state = {'epoch': epoch + 1, 'model_state_dict': model.state_dict(),
-                     'optimizer_state_dict': optimizer.state_dict()}
-            torch.save(state, os.path.join('snapshots', f'model{epoch}.pth'))
+                        'optimizer_state_dict': optimizer.state_dict()}
+            torch.save(state, os.path.join('snapshots', f'car_re_id_model.pth'))
             print("Epoch {} model saved!\n".format(epoch))
+            th = val_loss
 
-            # write summary
-            summary_writer.add_scalar(
-                'losses/train_loss', train_loss, global_step=epoch)
-            summary_writer.add_scalar(
-                'losses/val_loss', val_loss, global_step=epoch)
-            # summary_writer.add_scalar(
-            # 	'acc/train_acc', train_acc * 100, global_step=epoch)
-            # summary_writer.add_scalar(
-            # 	'acc/val_acc', val_acc * 100, global_step=epoch)
+        # write summary
+        summary_writer.add_scalar(
+            'losses/train_loss', train_loss, global_step=epoch)
+        summary_writer.add_scalar(
+            'losses/val_loss', val_loss, global_step=epoch)
+        # summary_writer.add_scalar(
+        # 	'acc/train_acc', train_acc * 100, global_step=epoch)
+        # summary_writer.add_scalar(
+        # 	'acc/val_acc', val_acc * 100, global_step=epoch)
 
 
 def train_epoch(train_loader, model, loss_fn, optimizer, device, opt, metrics):

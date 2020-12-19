@@ -28,6 +28,55 @@ class TripletNet(nn.Module):
         output1 = self.embedding_net(x1)
         return output1
 
+        
+def _pdist(a, b):
+    """Compute pair-wise squared distance between points in `a` and `b`.
+
+    Parameters
+    ----------
+    a : array_like
+        An NxM matrix of N samples of dimensionality M.
+    b : array_like
+        An LxM matrix of L samples of dimensionality M.
+
+    Returns
+    -------
+    ndarray
+        Returns a matrix of size len(a), len(b) such that eleement (i, j)
+        contains the squared distance between `a[i]` and `b[j]`.
+
+    """
+    a, b = np.asarray(a), np.asarray(b)
+    if len(a) == 0 or len(b) == 0:
+        return np.zeros((len(a), len(b)))
+    a2, b2 = np.square(a).sum(axis=1), np.square(b).sum(axis=1)
+    r2 = -2. * np.dot(a, b.T) + a2[:, None] + b2[None, :]
+    r2 = np.clip(r2, 0., float(np.inf))
+    return r2
+
+
+
+def _nn_euclidean_distance(x, y):
+    """ Helper function for nearest neighbor distance metric (Euclidean).
+
+    Parameters
+    ----------
+    x : ndarray
+        A matrix of N row-vectors (sample points).
+    y : ndarray
+        A matrix of M row-vectors (query points).
+
+    Returns
+    -------
+    ndarray
+        A vector of length M that contains for each entry in `y` the
+        smallest Euclidean distance to a sample in `x`.
+
+    """
+    distances = _pdist(x, y)
+    return np.maximum(0.0, distances.min(axis=0))
+
+
 
 opt = parse_opts()
 device = torch.device(f"cuda:{opt.gpu}" if opt.use_cuda else "cpu")
@@ -39,25 +88,25 @@ model=model.to(device)
 model.eval()
 
 transform = transforms.Compose([
-						   transforms.Resize((224,224)),
+						   transforms.Resize((64,128)),
 						   transforms.ToTensor(),
 						   transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
 					        0.229, 0.224, 0.225])
 					   ])
 
-checkpoint = torch.load('/Users/pranoyr/Downloads/model7.pth', map_location='cpu')
+checkpoint = torch.load('/Users/pranoyr/Downloads/model10.pth', map_location='cpu')
 model.load_state_dict(checkpoint['model_state_dict'])
 
 
-img1 = cv2.imread('./images/sw1.png')
+img1 = cv2.imread('./images/r1.png')
 img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
 img1 = Image.fromarray(img1)
 
-img2 = cv2.imread('./images/sw2.png')
+img2 = cv2.imread('./images/r2.png')
 img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
 img2 = Image.fromarray(img2)
 
-img3 = cv2.imread('./images/r1.png')
+img3 = cv2.imread('./images/sw1.png')
 img3 = cv2.cvtColor(img3,cv2.COLOR_BGR2RGB)
 img3 = Image.fromarray(img3)
 
@@ -70,9 +119,24 @@ with torch.no_grad():
     positive = model(img2.unsqueeze(0))
     negative = model(img3.unsqueeze(0))
 
-distance_positive = torch.norm(anchor - positive, 2, dim=1)
+# distance_positive = torch.norm(anchor - positive, 2, dim=1)
+# print(f'positive distance : {distance_positive}')
+
+# distance_negative = torch.norm(anchor - negative, 2, dim=1)
+# #distance_negative = (anchor - negative).pow(2).sum(1)
+# print(f'negative distance : {distance_negative}')
+
+positive = positive.div(positive.norm(p=2,dim=1,keepdim=True))
+anchor = anchor.div(anchor.norm(p=2,dim=1,keepdim=True))
+negative = negative.div(negative.norm(p=2,dim=1,keepdim=True))
+
+distances = _pdist(anchor, positive)
+distance_positive = np.maximum(0.0, distances.min(axis=0))
 print(f'positive distance : {distance_positive}')
 
-distance_negative = torch.norm(anchor - negative, 2, dim=1)
+
+distances = _pdist(anchor, negative)
+distance_negative = np.maximum(0.0, distances.min(axis=0))
+# distance_negative = torch.norm(anchor - negative, 2, dim=1)
 #distance_negative = (anchor - negative).pow(2).sum(1)
 print(f'negative distance : {distance_negative}')

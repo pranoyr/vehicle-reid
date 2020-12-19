@@ -9,7 +9,7 @@ from losses import TripletLoss
 from datasets import TripletMNIST, TripletVeriDataset
 from networks import TripletNet, EmbeddingNet, Resnet18, MobileNetv2
 from metrics import AccumulatedAccuracyMetric
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau
 from torchvision import datasets, transforms
 from opts import parse_opts
 
@@ -34,7 +34,6 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, 
         train_loss, metrics = train_epoch(
             train_loader, model, loss_fn, optimizer, device, opt, metrics)
 
-        scheduler.step()
 
         message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(
             epoch, opt.n_epochs, train_loss)
@@ -44,6 +43,8 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, 
         val_loss, metrics = test_epoch(
             val_loader, model, loss_fn, device, opt, metrics)
         val_loss /= len(val_loader)
+
+        scheduler.step(val_loss)
 
         message += '\nEpoch: {}/{}. Validation set: Average loss: {:.4f}'.format(epoch, opt.n_epochs,
                                                                                  val_loss)
@@ -214,9 +215,12 @@ if (__name__ == '__main__'):
     # loss_fn = TripletLoss(0.5)
 
     optimizer = optim.Adadelta(
-        model.parameters(), lr=opt.learning_rate, weight_decay=1e-2)
+        model.parameters(), lr=opt.learning_rate, weight_decay=5e-4)
     # optimizer = optim.Adam(model.parameters(), lr=1e-5)
-    scheduler = StepLR(optimizer, step_size=1, gamma=0.1)
+    # scheduler = StepLR(optimizer, step_size=1, gamma=0.1)
+    scheduler = ReduceLROnPlateau(
+			optimizer, 'min', patience=5)
+	
 
     if opt.resume_path:
         print('loading checkpoint {}'.format(opt.resume_path))

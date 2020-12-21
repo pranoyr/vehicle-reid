@@ -3,6 +3,7 @@ import argparse
 
 def parse_opts():
 	parser = argparse.ArgumentParser()
+	parser.add_argument("--data_dir", default='data', type=str)
 	parser.add_argument(
 		'--train_images',
 		default='/home/neuroplex/Downloads/VeRi/image_train',

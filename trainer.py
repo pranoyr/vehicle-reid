@@ -16,21 +16,21 @@ from torchvision import datasets, transforms
 from opts import parse_opts
 
 
-class MyLazyDataset(Dataset):
-    def __init__(self, dataset, transform=None):
-        self.dataset = dataset
-        self.transform = transform
+# class MyLazyDataset(Dataset):
+#     def __init__(self, dataset, transform=None):
+#         self.dataset = dataset
+#         self.transform = transform
 
-    def __getitem__(self, index):
-        if self.transform:
-            x = self.transform(self.dataset[index][0])
-        else:
-            x = self.dataset[index][0]
-        y = self.dataset[index][1]
-        return x, y
+#     def __getitem__(self, index):
+#         if self.transform:
+#             x = self.transform(self.dataset[index][0])
+#         else:
+#             x = self.dataset[index][0]
+#         y = self.dataset[index][1]
+#         return x, y
 
-    def __len__(self):
-        return len(self.dataset)
+#     def __len__(self):
+#         return len(self.dataset)
 
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, opt, metrics=[]):

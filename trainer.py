@@ -9,7 +9,7 @@ import torchvision
 
 from losses import TripletLoss
 from datasets import TripletMNIST, TripletVeriDataset
-from networks import TripletNet, EmbeddingNet, Resnet18, MobileNetv2
+from networks import TripletNet, EmbeddingNet, Net, MobileNetv2
 from metrics import AccumulatedAccuracyMetric
 from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau
 from torchvision import datasets, transforms
@@ -251,7 +251,7 @@ if (__name__ == '__main__'):
     # val_loader = torch.utils.data.DataLoader(validation_data,
     #                                          batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers)
 
-    embedding_net = Resnet18()
+    embedding_net = Net()
     # embedding_net = MobileNetv2()
     model = TripletNet(embedding_net).to(device)
     loss_fn = nn.TripletMarginLoss(margin=0.5)

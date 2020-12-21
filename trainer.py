@@ -232,11 +232,11 @@ if (__name__ == '__main__'):
 	np.random.shuffle(indices)
 	train_idx, valid_idx = indices[:split], indices[split:]
 
-	train_dataset = Subset(train_dataset, indices=train_idx)
-	val_dataset = Subset(val_dataset, indices=valid_idx)
+	train_dataset = Subset(train_dataset, indices=[0,1,2])
+	val_dataset = Subset(val_dataset, indices=[2,3])
 
 	print(len(train_dataset))
-	print(len(val_dataset))
+
 
 	train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=32,
 											   num_workers=0, drop_last=True)

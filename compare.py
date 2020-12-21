@@ -1,6 +1,6 @@
 from losses import TripletLoss
 from datasets import TripletMNIST, TripletVeriDataset
-from networks import EmbeddingNet, Resnet18, MobileNetv2
+from networks import EmbeddingNet, MobileNetv2, Net
 from metrics import AccumulatedAccuracyMetric
 from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
@@ -81,7 +81,7 @@ def _nn_euclidean_distance(x, y):
 opt = parse_opts()
 device = torch.device(f"cuda:{opt.gpu}" if opt.use_cuda else "cpu")
 
-embedding_net=Resnet18()
+embedding_net=Net()
 # embedding_net=MobileNetv2()
 model=TripletNet(embedding_net)
 model=model.to(device)

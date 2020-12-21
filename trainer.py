@@ -4,6 +4,8 @@ import torch.optim as optim
 import torch.nn as nn
 import os
 import tensorboardX
+from torch.utils.data import Subset
+import torchvision
 
 from losses import TripletLoss
 from datasets import TripletMNIST, TripletVeriDataset
@@ -12,6 +14,23 @@ from metrics import AccumulatedAccuracyMetric
 from torch.optim.lr_scheduler import StepLR, ReduceLROnPlateau
 from torchvision import datasets, transforms
 from opts import parse_opts
+
+
+class MyLazyDataset(Dataset):
+    def __init__(self, dataset, transform=None):
+        self.dataset = dataset
+        self.transform = transform
+
+    def __getitem__(self, index):
+        if self.transform:
+            x = self.transform(self.dataset[index][0])
+        else:
+            x = self.dataset[index][0]
+        y = self.dataset[index][1]
+        return x, y
+
+    def __len__(self):
+        return len(self.dataset)
 
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, opt, metrics=[]):
@@ -34,7 +53,6 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, 
         train_loss, metrics = train_epoch(
             train_loader, model, loss_fn, optimizer, device, opt, metrics)
 
-
         message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(
             epoch, opt.n_epochs, train_loss)
         for metric in metrics:
@@ -56,8 +74,9 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, 
         # if epoch % opt.save_interval == 0:
         if val_loss < th:
             state = {'epoch': epoch + 1, 'model_state_dict': model.state_dict(),
-                        'optimizer_state_dict': optimizer.state_dict()}
-            torch.save(state, os.path.join('snapshots', f'car_re_id_model.pth'))
+                     'optimizer_state_dict': optimizer.state_dict()}
+            torch.save(state, os.path.join(
+                'snapshots', f'car_re_id_model.pth'))
             print("Epoch {} model saved!\n".format(epoch))
             th = val_loss
 
@@ -199,16 +218,38 @@ if (__name__ == '__main__'):
             0.229, 0.224, 0.225])
     ])
 
-    training_data = TripletVeriDataset(
-        root_dir=opt.train_images, xml_path=opt.train_annotation_path, transform=train_transform)
-    validation_data = TripletVeriDataset(
-        root_dir=opt.test_images, xml_path=opt.test_annotation_path, transform=test_transform)
+    dataset = torchvision.datasets.ImageFolder(opt.data_dir)
 
-    train_loader = torch.utils.data.DataLoader(training_data,
-                                               batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers)
+    train_dataset = TripletMNIST(dataset, train_transform)
+    val_dataset = TripletMNIST(dataset, test_transform)
 
-    val_loader = torch.utils.data.DataLoader(validation_data,
-                                             batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers)
+    # Create the index splits for training, validation and test
+    train_size = 0.8
+    num_train = len(dataset)
+    indices = list(range(num_train))
+    split = int(np.floor(train_size * num_train))
+    # split2 = int(np.floor((train_size+(1-train_size)/2) * num_train))
+    np.random.shuffle(indices)
+    train_idx, valid_idx = indices[:split], indices[split:]
+
+    train_dataset = Subset(train_dataset, indices=train_idx)
+    val_dataset = Subset(val_dataset, indices=valid_idx)
+
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=32,
+                                               num_workers=0, drop_last=True)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=32,
+                                             num_workers=0, drop_last=True)
+
+    # training_data = TripletVeriDataset(
+    #     root_dir=opt.train_images, xml_path=opt.train_annotation_path, transform=train_transform)
+    # validation_data = TripletVeriDataset(
+    #     root_dir=opt.test_images, xml_path=opt.test_annotation_path, transform=test_transform)
+
+    # train_loader = torch.utils.data.DataLoader(training_data,
+    #                                            batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers)
+
+    # val_loader = torch.utils.data.DataLoader(validation_data,
+    #                                          batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers)
 
     embedding_net = Resnet18()
     # embedding_net = MobileNetv2()
@@ -221,8 +262,7 @@ if (__name__ == '__main__'):
     # optimizer = optim.Adam(model.parameters(), lr=1e-5)
     # scheduler = StepLR(optimizer, step_size=1, gamma=0.1)
     scheduler = ReduceLROnPlateau(
-			optimizer, 'min', patience=5)
-	
+        optimizer, 'min', patience=5)
 
     if opt.resume_path:
         print('loading checkpoint {}'.format(opt.resume_path))

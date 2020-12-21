@@ -160,9 +160,15 @@ class TripletMNIST(Dataset):
 		# 	img2 = self.test_data[self.test_triplets[index][1]]
 		# 	img3 = self.test_data[self.test_triplets[index][2]]
 
-		img1 = Image.fromarray(img1.numpy(), mode='L')
-		img2 = Image.fromarray(img2.numpy(), mode='L')
-		img3 = Image.fromarray(img3.numpy(), mode='L')
+		# img1 = Image.fromarray(img1.numpy(), mode='L')
+		# img2 = Image.fromarray(img2.numpy(), mode='L')
+		# img3 = Image.fromarray(img3.numpy(), mode='L')
+
+
+		img1 = Image.open(os.path.join(img1))
+		img2 = Image.open(os.path.join(img2))
+		img3 = Image.open(os.path.join(img3))
+
 		if self.transform is not None:
 			img1 = self.transform(img1)
 			img2 = self.transform(img2)

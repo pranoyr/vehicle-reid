@@ -231,6 +231,9 @@ if (__name__ == '__main__'):
 	# split2 = int(np.floor((train_size+(1-train_size)/2) * num_train))
 	np.random.shuffle(indices)
 	train_idx, valid_idx = indices[:split], indices[split:]
+	
+	print(len(train_idx))
+	print(len(valid_idx))
 
 	train_idx = [i for i in range (1000)]
 	valid_idx = [i for i in range (1000, 1500)]

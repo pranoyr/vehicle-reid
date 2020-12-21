@@ -115,7 +115,6 @@ class TripletMNIST(Dataset):
 		# if self.train:
 		self.train_labels = self.mnist_dataset.targets
 		self.train_data = [s[0] for s in self.mnist_dataset.samples]
-		print(self.train_data)
 		self.labels_set = set(self.train_labels)
 		self.label_to_indices = {label: np.where(self.train_labels == label)[0]
 									for label in self.labels_set}
@@ -145,8 +144,7 @@ class TripletMNIST(Dataset):
 
 	def __getitem__(self, index):
 		# if self.train:
-		img1, label1 = self.train_data[index], self.train_labels[index].item(
-		)
+		img1, label1 = self.train_data[index], self.train_labels[index]
 		positive_index = index
 		while positive_index == index:
 			positive_index = np.random.choice(

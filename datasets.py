@@ -20,7 +20,7 @@ def make_data(path):
 			attrib = item1.attrib
 			data.append(attrib)
 			labels_list.append(int(attrib['vehicleID']))
-	
+
 	labels_array = np.array(labels_list)
 	return data, labels_array
 
@@ -109,7 +109,7 @@ class TripletMNIST(Dataset):
 	"""
 
 	def __init__(self, mnist_dataset, transform):
-    	self.mnist_dataset = mnist_dataset
+		self.mnist_dataset = mnist_dataset
 		self.transform = transform
 
 		# if self.train:
@@ -189,7 +189,7 @@ class TripletVeriDataset(Dataset):
 
 		self.label_to_indices = {label: np.where(self.train_labels == label)[0]
 									for label in self.labels_set}
-	
+
 	def __getitem__(self, index):
 		img_name1, label1 = self.train_data[index]['imageName'], int(self.train_data[index]['vehicleID'])
 		positive_index = index
@@ -202,7 +202,7 @@ class TripletVeriDataset(Dataset):
 			self.label_to_indices[negative_label])
 		img_name2 = self.train_data[positive_index]['imageName']
 		img_name3 = self.train_data[negative_index]['imageName']
-	
+
 		img1 = Image.open(os.path.join(self.root_dir, img_name1))
 		img2 = Image.open(os.path.join(self.root_dir, img_name2))
 		img3 = Image.open(os.path.join(self.root_dir, img_name3))

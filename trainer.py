@@ -220,6 +220,8 @@ if (__name__ == '__main__'):
 
     dataset = torchvision.datasets.ImageFolder(opt.data_dir)
 
+	print(len(dataset))
+
     train_dataset = TripletMNIST(dataset, train_transform)
     val_dataset = TripletMNIST(dataset, test_transform)
 

@@ -110,15 +110,14 @@ class TripletMNIST(Dataset):
 
 	def __init__(self, mnist_dataset, transform):
 		self.mnist_dataset = mnist_dataset
-		self.train = [s[0] for s in mnist_dataset.samples]
 		self.transform = transform
 
-		if self.train:
-			self.train_labels = self.mnist_dataset.targets
-			self.train_data = self.mnist_dataset.train_data
-			self.labels_set = set(self.train_labels.numpy())
-			self.label_to_indices = {label: np.where(self.train_labels.numpy() == label)[0]
-									 for label in self.labels_set}
+		# if self.train:
+		self.train_labels = self.mnist_dataset.targets
+		self.train_data = [s[0] for s in self.mnist_dataset.samples]
+		self.labels_set = set(self.train_labels.numpy())
+		self.label_to_indices = {label: np.where(self.train_labels.numpy() == label)[0]
+									for label in self.labels_set}
 
 		# else:
 		# 	self.test_labels = self.mnist_dataset.test_labels

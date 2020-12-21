@@ -34,244 +34,244 @@ from opts import parse_opts
 
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, device, opt, metrics=[]):
-    """
-    Loaders, model, loss function and metrics should work together for a given task,
-    i.e. The model should be able to process data output of loaders,
-    loss function should process target output of loaders and outputs from the model
+	"""
+	Loaders, model, loss function and metrics should work together for a given task,
+	i.e. The model should be able to process data output of loaders,
+	loss function should process target output of loaders and outputs from the model
 
-    Examples: Classification: batch loader, classification model, NLL loss, accuracy metric
-    Siamese network: Siamese loader, siamese model, contrastive loss
-    Online triplet learning: batch loader, embedding model, online triplet loss
-    """
-    # for epoch in range(0, start_epoch):
-    # 	scheduler.step()
-    # tensorboard
-    summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
-    th = 10000
-    for epoch in range(opt.start_epoch, opt.n_epochs + 1):
-        # Train stage
-        train_loss, metrics = train_epoch(
-            train_loader, model, loss_fn, optimizer, device, opt, metrics)
+	Examples: Classification: batch loader, classification model, NLL loss, accuracy metric
+	Siamese network: Siamese loader, siamese model, contrastive loss
+	Online triplet learning: batch loader, embedding model, online triplet loss
+	"""
+	# for epoch in range(0, start_epoch):
+	# 	scheduler.step()
+	# tensorboard
+	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
+	th = 10000
+	for epoch in range(opt.start_epoch, opt.n_epochs + 1):
+		# Train stage
+		train_loss, metrics = train_epoch(
+			train_loader, model, loss_fn, optimizer, device, opt, metrics)
 
-        message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(
-            epoch, opt.n_epochs, train_loss)
-        for metric in metrics:
-            message += '\t{}: {}'.format(metric.name(), metric.value())
+		message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(
+			epoch, opt.n_epochs, train_loss)
+		for metric in metrics:
+			message += '\t{}: {}'.format(metric.name(), metric.value())
 
-        val_loss, metrics = test_epoch(
-            val_loader, model, loss_fn, device, opt, metrics)
-        val_loss /= len(val_loader)
+		val_loss, metrics = test_epoch(
+			val_loader, model, loss_fn, device, opt, metrics)
+		val_loss /= len(val_loader)
 
-        scheduler.step(val_loss)
+		scheduler.step(val_loss)
 
-        message += '\nEpoch: {}/{}. Validation set: Average loss: {:.4f}'.format(epoch, opt.n_epochs,
-                                                                                 val_loss)
-        for metric in metrics:
-            message += '\t{}: {}'.format(metric.name(), metric.value())
+		message += '\nEpoch: {}/{}. Validation set: Average loss: {:.4f}'.format(epoch, opt.n_epochs,
+																				 val_loss)
+		for metric in metrics:
+			message += '\t{}: {}'.format(metric.name(), metric.value())
 
-        print(message)
+		print(message)
 
-        # if epoch % opt.save_interval == 0:
-        if val_loss < th:
-            state = {'epoch': epoch + 1, 'model_state_dict': model.state_dict(),
-                     'optimizer_state_dict': optimizer.state_dict()}
-            torch.save(state, os.path.join(
-                'snapshots', f'car_re_id_model.pth'))
-            print("Epoch {} model saved!\n".format(epoch))
-            th = val_loss
+		# if epoch % opt.save_interval == 0:
+		if val_loss < th:
+			state = {'epoch': epoch + 1, 'model_state_dict': model.state_dict(),
+					 'optimizer_state_dict': optimizer.state_dict()}
+			torch.save(state, os.path.join(
+				'snapshots', f'car_re_id_model.pth'))
+			print("Epoch {} model saved!\n".format(epoch))
+			th = val_loss
 
-        # write summary
-        summary_writer.add_scalar(
-            'losses/train_loss', train_loss, global_step=epoch)
-        summary_writer.add_scalar(
-            'losses/val_loss', val_loss, global_step=epoch)
-        # summary_writer.add_scalar(
-        # 	'acc/train_acc', train_acc * 100, global_step=epoch)
-        # summary_writer.add_scalar(
-        # 	'acc/val_acc', val_acc * 100, global_step=epoch)
+		# write summary
+		summary_writer.add_scalar(
+			'losses/train_loss', train_loss, global_step=epoch)
+		summary_writer.add_scalar(
+			'losses/val_loss', val_loss, global_step=epoch)
+		# summary_writer.add_scalar(
+		# 	'acc/train_acc', train_acc * 100, global_step=epoch)
+		# summary_writer.add_scalar(
+		# 	'acc/val_acc', val_acc * 100, global_step=epoch)
 
 
 def train_epoch(train_loader, model, loss_fn, optimizer, device, opt, metrics):
-    for metric in metrics:
-        metric.reset()
+	for metric in metrics:
+		metric.reset()
 
-    model.train()
-    losses = []
-    total_loss = 0
+	model.train()
+	losses = []
+	total_loss = 0
 
-    for batch_idx, (data, target) in enumerate(train_loader):
-        target = target if len(target) > 0 else None
-        if not type(data) in (tuple, list):
-            data = (data,)
-        if opt.use_cuda:
-            data = tuple(d.to(device) for d in data)
-            if target is not None:
-                target = target.to(device)
+	for batch_idx, (data, target) in enumerate(train_loader):
+		target = target if len(target) > 0 else None
+		if not type(data) in (tuple, list):
+			data = (data,)
+		if opt.use_cuda:
+			data = tuple(d.to(device) for d in data)
+			if target is not None:
+				target = target.to(device)
 
-        optimizer.zero_grad()
-        outputs = model(*data)
+		optimizer.zero_grad()
+		outputs = model(*data)
 
-        if type(outputs) not in (tuple, list):
-            outputs = (outputs,)
+		if type(outputs) not in (tuple, list):
+			outputs = (outputs,)
 
-        loss_inputs = outputs
-        if target is not None:
-            target = (target,)
-            loss_inputs += target
+		loss_inputs = outputs
+		if target is not None:
+			target = (target,)
+			loss_inputs += target
 
-        loss_outputs = loss_fn(*loss_inputs)
-        loss = loss_outputs[0] if type(loss_outputs) in (
-            tuple, list) else loss_outputs
-        losses.append(loss.item())
-        total_loss += loss.item()
-        loss.backward()
-        optimizer.step()
+		loss_outputs = loss_fn(*loss_inputs)
+		loss = loss_outputs[0] if type(loss_outputs) in (
+			tuple, list) else loss_outputs
+		losses.append(loss.item())
+		total_loss += loss.item()
+		loss.backward()
+		optimizer.step()
 
-        for metric in metrics:
-            metric(outputs, target, loss_outputs)
+		for metric in metrics:
+			metric(outputs, target, loss_outputs)
 
-        if (batch_idx + 1) % opt.log_interval == 0:
-            message = 'Train: [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                (batch_idx + 1) * len(data[0]), len(train_loader.dataset),
-                100. * (batch_idx + 1) / len(train_loader), np.mean(losses))
-            for metric in metrics:
-                message += '\t{}: {}'.format(metric.name(), metric.value())
+		if (batch_idx + 1) % opt.log_interval == 0:
+			message = 'Train: [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+				(batch_idx + 1) * len(data[0]), len(train_loader.dataset),
+				100. * (batch_idx + 1) / len(train_loader), np.mean(losses))
+			for metric in metrics:
+				message += '\t{}: {}'.format(metric.name(), metric.value())
 
-            print(message)
-            losses = []
+			print(message)
+			losses = []
 
-    total_loss /= (batch_idx + 1)
-    return total_loss, metrics
+	total_loss /= (batch_idx + 1)
+	return total_loss, metrics
 
 
 def test_epoch(val_loader, model, loss_fn, device, opt, metrics):
-    with torch.no_grad():
-        for metric in metrics:
-            metric.reset()
-        model.eval()
-        val_loss = 0
-        for batch_idx, (data, target) in enumerate(val_loader):
-            target = target if len(target) > 0 else None
-            if not type(data) in (tuple, list):
-                data = (data,)
-            if opt.use_cuda:
-                data = tuple(d.to(device) for d in data)
-                if target is not None:
-                    target = target.to(device)
+	with torch.no_grad():
+		for metric in metrics:
+			metric.reset()
+		model.eval()
+		val_loss = 0
+		for batch_idx, (data, target) in enumerate(val_loader):
+			target = target if len(target) > 0 else None
+			if not type(data) in (tuple, list):
+				data = (data,)
+			if opt.use_cuda:
+				data = tuple(d.to(device) for d in data)
+				if target is not None:
+					target = target.to(device)
 
-            outputs = model(*data)
+			outputs = model(*data)
 
-            if type(outputs) not in (tuple, list):
-                outputs = (outputs,)
-            loss_inputs = outputs
-            if target is not None:
-                target = (target,)
-                loss_inputs += target
+			if type(outputs) not in (tuple, list):
+				outputs = (outputs,)
+			loss_inputs = outputs
+			if target is not None:
+				target = (target,)
+				loss_inputs += target
 
-            loss_outputs = loss_fn(*loss_inputs)
-            loss = loss_outputs[0] if type(loss_outputs) in (
-                tuple, list) else loss_outputs
-            val_loss += loss.item()
+			loss_outputs = loss_fn(*loss_inputs)
+			loss = loss_outputs[0] if type(loss_outputs) in (
+				tuple, list) else loss_outputs
+			val_loss += loss.item()
 
-            for metric in metrics:
-                metric(outputs, target, loss_outputs)
+			for metric in metrics:
+				metric(outputs, target, loss_outputs)
 
-    return val_loss, metrics
+	return val_loss, metrics
 
 
 if (__name__ == '__main__'):
-    torch.manual_seed(1)
-    np.random.seed(1)
-    # torch.backends.cudnn.deterministic = True
-    # torch.backends.cudnn.benchmark = False
+	torch.manual_seed(1)
+	np.random.seed(1)
+	# torch.backends.cudnn.deterministic = True
+	# torch.backends.cudnn.benchmark = False
 
-    opt = parse_opts()
+	opt = parse_opts()
 
-    # CUDA for PyTorch
+	# CUDA for PyTorch
 
-    device = torch.device(f"cuda:{opt.gpu}" if opt.use_cuda else "cpu")
-    # use_cuda = torch.cuda.is_available()
-    # kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
+	device = torch.device(f"cuda:{opt.gpu}" if opt.use_cuda else "cpu")
+	# use_cuda = torch.cuda.is_available()
+	# kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
 
-    # training_data = datasets.MNIST('./data', train=True, download=True,
-    # 					   transform=transforms.Compose([
-    # 						   transforms.ToTensor(),
-    # 						   transforms.Normalize((0.1307,), (0.3081,))
-    # 					   ]))
-    # validation_data =  datasets.MNIST('./data', train=False, transform=transforms.Compose([
-    # 						transforms.ToTensor(),
-    # 						transforms.Normalize((0.1307,), (0.3081,))
-    # 					]))
+	# training_data = datasets.MNIST('./data', train=True, download=True,
+	# 					   transform=transforms.Compose([
+	# 						   transforms.ToTensor(),
+	# 						   transforms.Normalize((0.1307,), (0.3081,))
+	# 					   ]))
+	# validation_data =  datasets.MNIST('./data', train=False, transform=transforms.Compose([
+	# 						transforms.ToTensor(),
+	# 						transforms.Normalize((0.1307,), (0.3081,))
+	# 					]))
 
-    train_transform = transforms.Compose([
-        transforms.Resize((64, 128)),
-        #    transforms.RandomRotation([-45,45]),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
-            0.229, 0.224, 0.225])
-    ])
+	train_transform = transforms.Compose([
+		transforms.Resize((64, 128)),
+		#    transforms.RandomRotation([-45,45]),
+		transforms.ToTensor(),
+		transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
+			0.229, 0.224, 0.225])
+	])
 
-    test_transform = transforms.Compose([
-        transforms.Resize((64, 128)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
-            0.229, 0.224, 0.225])
-    ])
+	test_transform = transforms.Compose([
+		transforms.Resize((64, 128)),
+		transforms.ToTensor(),
+		transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
+			0.229, 0.224, 0.225])
+	])
 
-    dataset = torchvision.datasets.ImageFolder(opt.data_dir)
+	dataset = torchvision.datasets.ImageFolder(opt.data_dir)
 
 	print(len(dataset))
 
-    train_dataset = TripletMNIST(dataset, train_transform)
-    val_dataset = TripletMNIST(dataset, test_transform)
+	train_dataset = TripletMNIST(dataset, train_transform)
+	val_dataset = TripletMNIST(dataset, test_transform)
 
-    # Create the index splits for training, validation and test
-    train_size = 0.8
-    num_train = len(dataset)
-    indices = list(range(num_train))
-    split = int(np.floor(train_size * num_train))
-    # split2 = int(np.floor((train_size+(1-train_size)/2) * num_train))
-    np.random.shuffle(indices)
-    train_idx, valid_idx = indices[:split], indices[split:]
+	# Create the index splits for training, validation and test
+	train_size = 0.8
+	num_train = len(dataset)
+	indices = list(range(num_train))
+	split = int(np.floor(train_size * num_train))
+	# split2 = int(np.floor((train_size+(1-train_size)/2) * num_train))
+	np.random.shuffle(indices)
+	train_idx, valid_idx = indices[:split], indices[split:]
 
-    train_dataset = Subset(train_dataset, indices=train_idx)
-    val_dataset = Subset(val_dataset, indices=valid_idx)
+	train_dataset = Subset(train_dataset, indices=train_idx)
+	val_dataset = Subset(val_dataset, indices=valid_idx)
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=32,
-                                               num_workers=0, drop_last=True)
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=32,
-                                             num_workers=0, drop_last=True)
+	train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=32,
+											   num_workers=0, drop_last=True)
+	val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=32,
+											 num_workers=0, drop_last=True)
 
-    # training_data = TripletVeriDataset(
-    #     root_dir=opt.train_images, xml_path=opt.train_annotation_path, transform=train_transform)
-    # validation_data = TripletVeriDataset(
-    #     root_dir=opt.test_images, xml_path=opt.test_annotation_path, transform=test_transform)
+	# training_data = TripletVeriDataset(
+	#     root_dir=opt.train_images, xml_path=opt.train_annotation_path, transform=train_transform)
+	# validation_data = TripletVeriDataset(
+	#     root_dir=opt.test_images, xml_path=opt.test_annotation_path, transform=test_transform)
 
-    # train_loader = torch.utils.data.DataLoader(training_data,
-    #                                            batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers)
+	# train_loader = torch.utils.data.DataLoader(training_data,
+	#                                            batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers)
 
-    # val_loader = torch.utils.data.DataLoader(validation_data,
-    #                                          batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers)
+	# val_loader = torch.utils.data.DataLoader(validation_data,
+	#                                          batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers)
 
-    embedding_net = Net()
-    # embedding_net = MobileNetv2()
-    model = TripletNet(embedding_net).to(device)
-    loss_fn = nn.TripletMarginLoss(margin=0.5)
-    # loss_fn = TripletLoss(0.5)
+	embedding_net = Net()
+	# embedding_net = MobileNetv2()
+	model = TripletNet(embedding_net).to(device)
+	loss_fn = nn.TripletMarginLoss(margin=0.5)
+	# loss_fn = TripletLoss(0.5)
 
-    optimizer = optim.Adadelta(
-        model.parameters(), lr=opt.learning_rate, weight_decay=5e-4)
-    # optimizer = optim.Adam(model.parameters(), lr=1e-5)
-    # scheduler = StepLR(optimizer, step_size=1, gamma=0.1)
-    scheduler = ReduceLROnPlateau(
-        optimizer, 'min', patience=5)
+	optimizer = optim.Adadelta(
+		model.parameters(), lr=opt.learning_rate, weight_decay=5e-4)
+	# optimizer = optim.Adam(model.parameters(), lr=1e-5)
+	# scheduler = StepLR(optimizer, step_size=1, gamma=0.1)
+	scheduler = ReduceLROnPlateau(
+		optimizer, 'min', patience=5)
 
-    if opt.resume_path:
-        print('loading checkpoint {}'.format(opt.resume_path))
-        checkpoint = torch.load(opt.resume_path)
-        opt.start_epoch = checkpoint['epoch']
-        model.load_state_dict(checkpoint['model_state_dict'])
-        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+	if opt.resume_path:
+		print('loading checkpoint {}'.format(opt.resume_path))
+		checkpoint = torch.load(opt.resume_path)
+		opt.start_epoch = checkpoint['epoch']
+		model.load_state_dict(checkpoint['model_state_dict'])
+		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
-    fit(train_loader, val_loader, model, loss_fn,
-        optimizer, scheduler, device, opt, metrics=[])
+	fit(train_loader, val_loader, model, loss_fn,
+		optimizer, scheduler, device, opt, metrics=[])

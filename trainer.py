@@ -220,8 +220,6 @@ if (__name__ == '__main__'):
 
 	dataset = torchvision.datasets.ImageFolder(opt.data_dir)
 
-	print(len(dataset))
-
 	train_dataset = TripletMNIST(dataset, train_transform)
 	val_dataset = TripletMNIST(dataset, test_transform)
 
@@ -236,6 +234,9 @@ if (__name__ == '__main__'):
 
 	train_dataset = Subset(train_dataset, indices=train_idx)
 	val_dataset = Subset(val_dataset, indices=valid_idx)
+
+	print(len(train_dataset))
+	print(len(val_dataset))
 
 	train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=32,
 											   num_workers=0, drop_last=True)

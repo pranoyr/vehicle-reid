@@ -113,8 +113,8 @@ class TripletMNIST(Dataset):
 		self.transform = transform
 
 		# if self.train:
-		self.train_labels = self.mnist_dataset.targets
-		self.train_data = [s[0] for s in self.mnist_dataset.samples]
+		self.train_labels = np.array(self.mnist_dataset.targets)
+		self.train_data = np.array([s[0] for s in self.mnist_dataset.samples])
 		self.labels_set = set(self.train_labels)
 		self.label_to_indices = {label: np.where(self.train_labels == label)[0]
 									for label in self.labels_set}

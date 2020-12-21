@@ -119,24 +119,24 @@ with torch.no_grad():
     positive = model(img2.unsqueeze(0))
     negative = model(img3.unsqueeze(0))
 
-# distance_positive = torch.norm(anchor - positive, 2, dim=1)
-# print(f'positive distance : {distance_positive}')
-
-# distance_negative = torch.norm(anchor - negative, 2, dim=1)
-# #distance_negative = (anchor - negative).pow(2).sum(1)
-# print(f'negative distance : {distance_negative}')
-
-positive = positive.div(positive.norm(p=2,dim=1,keepdim=True))
-anchor = anchor.div(anchor.norm(p=2,dim=1,keepdim=True))
-negative = negative.div(negative.norm(p=2,dim=1,keepdim=True))
-
-distances = _pdist(anchor, positive)
-distance_positive = np.maximum(0.0, distances.min(axis=0))
+distance_positive = torch.norm(anchor - positive, 2, dim=1)
 print(f'positive distance : {distance_positive}')
 
-
-distances = _pdist(anchor, negative)
-distance_negative = np.maximum(0.0, distances.min(axis=0))
-# distance_negative = torch.norm(anchor - negative, 2, dim=1)
+distance_negative = torch.norm(anchor - negative, 2, dim=1)
 #distance_negative = (anchor - negative).pow(2).sum(1)
 print(f'negative distance : {distance_negative}')
+
+# positive = positive.div(positive.norm(p=2,dim=1,keepdim=True))
+# anchor = anchor.div(anchor.norm(p=2,dim=1,keepdim=True))
+# negative = negative.div(negative.norm(p=2,dim=1,keepdim=True))
+
+# distances = _pdist(anchor, positive)
+# distance_positive = np.maximum(0.0, distances.min(axis=0))
+# print(f'positive distance : {distance_positive}')
+
+
+# distances = _pdist(anchor, negative)
+# distance_negative = np.maximum(0.0, distances.min(axis=0))
+# # distance_negative = torch.norm(anchor - negative, 2, dim=1)
+# #distance_negative = (anchor - negative).pow(2).sum(1)
+# print(f'negative distance : {distance_negative}')

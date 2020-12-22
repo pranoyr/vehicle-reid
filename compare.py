@@ -98,11 +98,11 @@ checkpoint = torch.load('./snapshots/car_re_id_model.pth', map_location='cpu')
 model.load_state_dict(checkpoint['model_state_dict'])
 
 
-img1 = cv2.imread('./images/entry.png')
+img1 = cv2.imread('./images/r1.png')
 img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
 img1 = Image.fromarray(img1)
 
-img2 = cv2.imread('./images/exit.png')
+img2 = cv2.imread('./images/r2.png')
 img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
 img2 = Image.fromarray(img2)
 
@@ -126,17 +126,17 @@ distance_negative = torch.norm(anchor - negative, 2, dim=1)
 #distance_negative = (anchor - negative).pow(2).sum(1)
 print(f'negative distance : {distance_negative}')
 
-# positive = positive.div(positive.norm(p=2,dim=1,keepdim=True))
-# anchor = anchor.div(anchor.norm(p=2,dim=1,keepdim=True))
-# negative = negative.div(negative.norm(p=2,dim=1,keepdim=True))
+positive = positive.div(positive.norm(p=2,dim=1,keepdim=True))
+anchor = anchor.div(anchor.norm(p=2,dim=1,keepdim=True))
+negative = negative.div(negative.norm(p=2,dim=1,keepdim=True))
 
-# distances = _pdist(anchor, positive)
-# distance_positive = np.maximum(0.0, distances.min(axis=0))
-# print(f'positive distance : {distance_positive}')
+distances = _pdist(anchor, positive)
+distance_positive = np.maximum(0.0, distances.min(axis=0))
+print(f'positive distance : {distance_positive}')
 
 
-# distances = _pdist(anchor, negative)
-# distance_negative = np.maximum(0.0, distances.min(axis=0))
-# # distance_negative = torch.norm(anchor - negative, 2, dim=1)
-# #distance_negative = (anchor - negative).pow(2).sum(1)
-# print(f'negative distance : {distance_negative}')
+distances = _pdist(anchor, negative)
+distance_negative = np.maximum(0.0, distances.min(axis=0))
+# distance_negative = torch.norm(anchor - negative, 2, dim=1)
+#distance_negative = (anchor - negative).pow(2).sum(1)
+print(f'negative distance : {distance_negative}')

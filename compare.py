@@ -98,15 +98,15 @@ checkpoint = torch.load('./snapshots/car_re_id_model.pth', map_location='cpu')
 model.load_state_dict(checkpoint['model_state_dict'])
 
 
-img1 = cv2.imread('./images/2.jpg')
+img1 = cv2.imread('./images/white.jpg')
 img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
 img1 = Image.fromarray(img1)
 
-img2 = cv2.imread('./images/3.jpg')
+img2 = cv2.imread('./images/white1.jpg')
 img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
 img2 = Image.fromarray(img2)
 
-img3 = cv2.imread('./images/white.png')
+img3 = cv2.imread('./images/redin.png')
 img3 = cv2.cvtColor(img3,cv2.COLOR_BGR2RGB)
 img3 = Image.fromarray(img3)
 

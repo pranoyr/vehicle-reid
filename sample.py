@@ -12,5 +12,10 @@ y = torch.tensor([[4., 5., 6.]])
 # print(x-y)
 
 
+
 distance_positive = torch.norm((x-y), 2, dim=1)
+print(distance_positive)
+
+
+distance_positive = torch.sqrt((x - y).pow(2).sum(1))
 print(distance_positive)

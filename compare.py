@@ -94,19 +94,22 @@ transform = transforms.Compose([
 					        0.229, 0.224, 0.225])
 					   ])
 
-checkpoint = torch.load('./snapshots/car_re_id_model.pth', map_location='cpu')
+checkpoint = torch.load('/Users/pranoyr/Desktop/weights/car_re_id_model.pth', map_location='cpu')
 model.load_state_dict(checkpoint['model_state_dict'])
 
+# torch.save(checkpoint, "/Users/pranoyr/Desktop/car_re_id_model.pth", _use_new_zipfile_serialization=False)
 
-img1 = cv2.imread('./images/2.jpg')
+
+# img1 = cv2.imread('/Users/pranoyr/Desktop/reid/r1.png')
+img1 = cv2.imread('./images/wag.png')
 img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
 img1 = Image.fromarray(img1)
 
-img2 = cv2.imread('./images/3.jpg')
+img2 = cv2.imread('./images/swi.png')
 img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
 img2 = Image.fromarray(img2)
 
-img3 = cv2.imread('./images/1.jpg')
+img3 = cv2.imread('/Users/pranoyr/Desktop/reid/5.png')
 img3 = cv2.cvtColor(img3,cv2.COLOR_BGR2RGB)
 img3 = Image.fromarray(img3)
 
@@ -119,24 +122,25 @@ with torch.no_grad():
     positive = model(img2.unsqueeze(0))
     negative = model(img3.unsqueeze(0))
 
-distance_positive = torch.norm(anchor - positive, 2, dim=1)
+# distance_positive = torch.norm(anchor - positive, 2, dim=1)
+distance_positive = (anchor - positive).pow(2).sum(1)
 print(f'positive distance : {distance_positive}')
 
-distance_negative = torch.norm(anchor - negative, 2, dim=1)
-#distance_negative = (anchor - negative).pow(2).sum(1)
+# distance_negative = torch.norm(anchor - negative, 2, dim=1)
+distance_negative = (anchor - negative).pow(2).sum(1)
 print(f'negative distance : {distance_negative}')
 
 # positive = positive.div(positive.norm(p=2,dim=1,keepdim=True))
 # anchor = anchor.div(anchor.norm(p=2,dim=1,keepdim=True))
 # negative = negative.div(negative.norm(p=2,dim=1,keepdim=True))
 
-distances = _pdist(anchor, positive)
-distance_positive = np.maximum(0.0, distances.min(axis=0))
-print(f'positive distance : {distance_positive}')
+# distances = _pdist(anchor, positive)
+# distance_positive = np.maximum(0.0, distances.min(axis=0))
+# print(f'positive distance : {distance_positive}')
 
 
-distances = _pdist(anchor, negative)
-distance_negative = np.maximum(0.0, distances.min(axis=0))
-# distance_negative = torch.norm(anchor - negative, 2, dim=1)
-#distance_negative = (anchor - negative).pow(2).sum(1)
-print(f'negative distance : {distance_negative}')
+# distances = _pdist(anchor, negative)
+# distance_negative = np.maximum(0.0, distances.min(axis=0))
+# # distance_negative = torch.norm(anchor - negative, 2, dim=1)
+# #distance_negative = (anchor - negative).pow(2).sum(1)
+# print(f'negative distance : {distance_negative}')

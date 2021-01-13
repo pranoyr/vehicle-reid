@@ -216,8 +216,8 @@ if (__name__ == '__main__'):
 	embedding_net = Resnet18()
 	# embedding_net = MobileNetv2()
 	model = TripletNet(embedding_net).to(device)
-	loss_fn = nn.TripletMarginLoss(margin=0.5)
-	# loss_fn = TripletLoss(0.5)
+	# loss_fn = nn.TripletMarginLoss(margin=0.5)
+	loss_fn = TripletLoss(0.5)
 
 	optimizer = optim.Adadelta(
 		model.parameters(), lr=opt.learning_rate, weight_decay=5e-4)

@@ -1,21 +1,17 @@
 import torch
- 
-x = torch.tensor([[1., 2., 3.]])
-y = torch.tensor([[4., 5., 6.]])
-# a = torch.linalg.norm(c, dim=1)
+import torch.nn as nn
 
-# x = x.div(x.norm(p=2,dim=1,keepdim=True))
+input1 = torch.randn(100, 128)
+input2 = torch.randn(100, 128)
+cos = nn.CosineSimilarity(dim=1, eps=1e-6)
+output = cos(input1, input2)
 
-
-# y = y.div(y.norm(p=2,dim=1,keepdim=True))
-
-# print(x-y)
+print(output.shape)
 
 
 
-distance_positive = torch.norm((x-y), 2, dim=1)
-print(distance_positive)
+# distance_positive = (input1 - input2).pow(2).sum(1)  # .pow(.5)
+# print(distance_positive.shape)
 
 
-distance_positive = torch.sqrt((x - y).pow(2).sum(1))
-print(distance_positive)
+# losses = F.relu(distance_positive - distance_negative + self.margin)

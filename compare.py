@@ -88,7 +88,7 @@ model=model.to(device)
 model.eval()
 
 transform = transforms.Compose([
-						   transforms.Resize((64,128)),
+						   transforms.Resize((96,96)),
 						   transforms.ToTensor(),
 						   transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
 					        0.229, 0.224, 0.225])
@@ -101,15 +101,15 @@ model.load_state_dict(checkpoint['model_state_dict'])
 
 
 # img1 = cv2.imread('/Users/pranoyr/Desktop/reid/r1.png')
-img1 = cv2.imread('./images/wag.png')
+img1 = cv2.imread('/Users/pranoyr/Desktop/reid/1.png')
 img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
 img1 = Image.fromarray(img1)
 
-img2 = cv2.imread('./images/swi.png')
+img2 = cv2.imread('/Users/pranoyr/Desktop/reid/5.png')
 img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
 img2 = Image.fromarray(img2)
 
-img3 = cv2.imread('/Users/pranoyr/Desktop/reid/5.png')
+img3 = cv2.imread('/Users/pranoyr/Desktop/reid/0.png')
 img3 = cv2.cvtColor(img3,cv2.COLOR_BGR2RGB)
 img3 = Image.fromarray(img3)
 

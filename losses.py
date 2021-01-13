@@ -37,7 +37,7 @@ class TripletLoss(nn.Module):
         # distance_negative = (anchor - negative).pow(2).sum(1)  # .pow(.5)
         distance_positive = self.cosine_similarity(anchor, positive)
         distance_negative = self.cosine_similarity(anchor, negative)
-        losses = F.relu(distance_positive - distance_negative + self.margin)
+        losses = F.relu(distance_negative - distance_positive + self.margin)
         return losses.mean() if size_average else losses.sum()
 
 

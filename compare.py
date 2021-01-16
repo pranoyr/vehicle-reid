@@ -1,6 +1,6 @@
 from losses import TripletLoss
 from datasets import TripletMNIST, TripletVeriDataset
-from networks import EmbeddingNet, Resnet18, MobileNetv2
+from networks import EmbeddingNet, Net, MobileNetv2
 from metrics import AccumulatedAccuracyMetric
 from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
@@ -81,32 +81,32 @@ def _nn_euclidean_distance(x, y):
 opt = parse_opts()
 device = torch.device(f"cuda:{opt.gpu}" if opt.use_cuda else "cpu")
 
-embedding_net=Resnet18()
+embedding_net=Net()
 # embedding_net=MobileNetv2()
 model=TripletNet(embedding_net)
 model=model.to(device)
 model.eval()
 
 transform = transforms.Compose([
-						   transforms.Resize((64,128)),
+						   transforms.Resize((96,96)),
 						   transforms.ToTensor(),
 						   transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
 					        0.229, 0.224, 0.225])
 					   ])
 
-checkpoint = torch.load('/Users/pranoyr/Downloads/car_re_id_model.pth', map_location='cpu')
+checkpoint = torch.load('/Users/pranoyr/Desktop/weights/car_re_id_model.pth', map_location='cpu')
 model.load_state_dict(checkpoint['model_state_dict'])
 
 
-img1 = cv2.imread('./images/sw1.png')
+img1 = cv2.imread('/Users/pranoyr/Desktop/reid/6.png')
 img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
 img1 = Image.fromarray(img1)
 
-img2 = cv2.imread('./images/sw2.png')
+img2 = cv2.imread('/Users/pranoyr/Desktop/reid/7.png')
 img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
 img2 = Image.fromarray(img2)
 
-img3 = cv2.imread('./images/white.png')
+img3 = cv2.imread('/Users/pranoyr/Desktop/reid/r2.png')
 img3 = cv2.cvtColor(img3,cv2.COLOR_BGR2RGB)
 img3 = Image.fromarray(img3)
 
@@ -119,24 +119,41 @@ with torch.no_grad():
     positive = model(img2.unsqueeze(0))
     negative = model(img3.unsqueeze(0))
 
-# distance_positive = torch.norm(anchor - positive, 2, dim=1)
+distance_positive = torch.norm(anchor - positive, 2, dim=1)
+print(f'positive distance : {distance_positive}')
+
+distance_negative = torch.norm(anchor - negative, 2, dim=1)
+#distance_negative = (anchor - negative).pow(2).sum(1)
+print(f'negative distance : {distance_negative}')
+
+# positive = positive.div(positive.norm(p=2,dim=1,keepdim=True))
+# anchor = anchor.div(anchor.norm(p=2,dim=1,keepdim=True))
+# negative = negative.div(negative.norm(p=2,dim=1,keepdim=True))
+
+# distances = _pdist(anchor, positive)
+# distance_positive = np.maximum(0.0, distances.min(axis=0))
 # print(f'positive distance : {distance_positive}')
 
-# distance_negative = torch.norm(anchor - negative, 2, dim=1)
+
+# distances = _pdist(anchor, negative)
+# distance_negative = np.maximum(0.0, distances.min(axis=0))
+# # distance_negative = torch.norm(anchor - negative, 2, dim=1)
 # #distance_negative = (anchor - negative).pow(2).sum(1)
 # print(f'negative distance : {distance_negative}')
 
-positive = positive.div(positive.norm(p=2,dim=1,keepdim=True))
-anchor = anchor.div(anchor.norm(p=2,dim=1,keepdim=True))
-negative = negative.div(negative.norm(p=2,dim=1,keepdim=True))
-
-distances = _pdist(anchor, positive)
-distance_positive = np.maximum(0.0, distances.min(axis=0))
-print(f'positive distance : {distance_positive}')
 
 
-distances = _pdist(anchor, negative)
-distance_negative = np.maximum(0.0, distances.min(axis=0))
-# distance_negative = torch.norm(anchor - negative, 2, dim=1)
-#distance_negative = (anchor - negative).pow(2).sum(1)
-print(f'negative distance : {distance_negative}')
+# positive = positive.div(positive.norm(p=2,dim=1,keepdim=True))
+# anchor = anchor.div(anchor.norm(p=2,dim=1,keepdim=True))
+# negative = negative.div(negative.norm(p=2,dim=1,keepdim=True))
+
+
+
+# cosine_similarity = nn.CosineSimilarity(dim=1, eps=1e-6)
+# distance_positive = cosine_similarity(anchor, positive)
+# print(f'positive distance : {distance_positive}')
+
+
+# distance_negative = cosine_similarity(anchor, negative)
+# # distance_negative = np.maximum(0.0, distances.min(axis=0))
+# print(f'negative distance : {distance_negative}')

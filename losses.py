@@ -30,7 +30,7 @@ class TripletLoss(nn.Module):
     def __init__(self, margin):
         super(TripletLoss, self).__init__()
         self.margin = margin
-        self.cosine_similarity = nn.CosineSimilarity(dim=1, eps=1e-6)
+        self.cosine_similarity = nn.CosineSimilarity(dim=1)
 
     def forward(self, anchor, positive, negative, size_average=True):
         # distance_positive = (anchor - positive).pow(2).sum(1)  # .pow(.5)

@@ -216,12 +216,12 @@ if (__name__ == '__main__'):
 	embedding_net = Net()
 	# embedding_net = MobileNetv2()
 	model = TripletNet(embedding_net).to(device)
-	# loss_fn = nn.TripletMarginLoss(margin=0.5)
-	loss_fn = TripletLoss(0.5)
+	loss_fn = nn.TripletMarginLoss(margin=0.5)
+	# loss_fn = TripletLoss(0.5)
 
-	optimizer = optim.Adadelta(
-		model.parameters(), lr=opt.learning_rate, weight_decay=5e-4)
-	# optimizer = optim.Adam(model.parameters(), lr=1e-5)
+	# optimizer = optim.Adadelta(
+	# 	model.parameters(), lr=opt.learning_rate, weight_decay=5e-4)
+	optimizer = optim.SGD(model.parameters(), lr=1e-3, momentum=0.9)
 	# scheduler = StepLR(optimizer, step_size=1, gamma=0.1)
 	scheduler = ReduceLROnPlateau(
 			optimizer, 'min', patience=5)
